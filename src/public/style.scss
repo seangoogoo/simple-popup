@@ -1,15 +1,24 @@
+// Lock page scrolling while a popup is open.
+html:has(dialog.simple-popup[open]) {
+	overflow: hidden;
+}
+
 dialog.simple-popup {
 	--simple-popup-max-width: 480px;
 	--simple-popup-radius: 12px;
 	--simple-popup-backdrop: rgba(0, 0, 0, 0.5);
 	--simple-popup-padding: 24px;
 
-	position: relative;
+	// Modal dialogs are fixed in the top layer: keep it that way even if a
+	// theme sets `position` on dialogs, or the popup would scroll with the page.
+	position: fixed;
+	inset: 0;
 	box-sizing: border-box;
 	width: min(92vw, var(--simple-popup-max-width));
 	max-width: var(--simple-popup-max-width);
 	max-height: 90vh;
 	overflow: auto;
+	overscroll-behavior: contain;
 	padding: var(--simple-popup-padding);
 	margin: auto;
 	border: 0;
@@ -17,6 +26,12 @@ dialog.simple-popup {
 
 	&::backdrop {
 		background: var(--simple-popup-backdrop);
+	}
+
+	// The dialog itself receives focus on opening (autofocus attribute), so
+	// no focus ring is drawn on the close button unless the user tabs to it.
+	&:focus {
+		outline: none;
 	}
 
 	.simple-popup__close {

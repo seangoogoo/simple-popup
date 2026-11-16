@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.5] - 2026-11-16
+
+### Fixed
+
+- The popup stays fixed in the viewport: the public stylesheet set `position: relative` on the dialog, overriding the native fixed positioning of modal dialogs, so the popup scrolled with the page.
+- Page scrolling is locked while a popup is open (`html:has(dialog.simple-popup[open])`), and scroll chaining from the popup is contained.
+- The dialog itself (`tabindex="-1"`) receives focus on opening instead of the close button, so no focus ring appears unless the visitor navigates with the keyboard.
+
 ## [0.1.4] - 2026-11-16
 
 ### Changed

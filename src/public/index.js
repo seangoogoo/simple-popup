@@ -190,6 +190,9 @@ import './style.scss';
 		const self = this;
 		this.preloadImages( function () {
 			self.dialog.showModal();
+			// Focus the dialog itself (tabindex="-1"), not its first button,
+			// so no focus ring shows until the visitor uses the keyboard.
+			self.dialog.focus( { preventScroll: true } );
 			self.markSeen();
 			self.watchConversion();
 		} );

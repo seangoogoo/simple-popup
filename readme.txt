@@ -45,6 +45,11 @@ Technically yes, but only one popup opens per page view (the first one to trigge
 
 == Changelog ==
 
+= 0.1.5 =
+* Fix: the popup stays fixed in the viewport (it scrolled with the page when a theme or the plugin styles overrode the dialog `position`).
+* Fix: page scrolling is locked while a popup is open.
+* Fix: the dialog itself is focused on opening, so no focus ring appears on the close button unless the visitor uses the keyboard.
+
 = 0.1.4 =
 * Admin list: when all languages are listed, each row's "Languages" column only shows its own language state.
 

@@ -102,6 +102,8 @@ class Simple_Popup_Frontend {
 			data-frequency-value="<?php echo esc_attr( $frequency_value ); ?>"
 			data-conversion="<?php echo esc_attr( $conversion_selector ); ?>"
 			aria-labelledby="<?php echo esc_attr( $title_id ); ?>"
+			tabindex="-1"
+			autofocus
 		>
 			<h2 id="<?php echo esc_attr( $title_id ); ?>" class="screen-reader-text"><?php echo esc_html( get_the_title( $popup ) ); ?></h2>
 			<button type="button" class="simple-popup__close" aria-label="<?php esc_attr_e( 'Close', 'simple-popup' ); ?>">&times;</button>
