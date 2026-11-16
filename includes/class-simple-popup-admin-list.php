@@ -222,10 +222,19 @@ class Simple_Popup_Admin_List {
 		return wp_nonce_url( $url, 'simple_popup_toggle_active_' . $post_id );
 	}
 
+	/**
+	 * URL of the list screen being rendered (with its filters, e.g. the
+	 * Polylang language), so a toggle returns to the same view. The HTTP
+	 * referer would point to the page visited before the list.
+	 */
 	private static function current_list_url() {
-		$referer = wp_get_referer();
+		if ( empty( $_SERVER['HTTP_HOST'] ) || empty( $_SERVER['REQUEST_URI'] ) ) {
+			return admin_url( 'edit.php?post_type=' . Simple_Popup_CPT::POST_TYPE );
+		}
 
-		return $referer ? $referer : admin_url( 'edit.php?post_type=' . Simple_Popup_CPT::POST_TYPE );
+		$url = set_url_scheme( 'http://' . wp_unslash( $_SERVER['HTTP_HOST'] ) . wp_unslash( $_SERVER['REQUEST_URI'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated by wp_safe_redirect() on use.
+
+		return remove_query_arg( array( '_wpnonce', '_wp_http_referer' ), $url );
 	}
 
 	public static function handle_toggle_active() {

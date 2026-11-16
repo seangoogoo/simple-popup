@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.3] - 2026-11-16
+
+### Fixed
+
+- Toggling a popup from the admin list now returns to the same list view (filters and language kept). The return URL was taken from the HTTP referer, i.e. the page visited before the list.
+
+### Changed
+
+- Plugin author set to SeanGooGoo, linking to the GitHub repository.
+
 ## [0.1.2] - 2026-11-16
 
 ### Fixed

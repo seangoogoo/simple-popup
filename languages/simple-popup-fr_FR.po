@@ -28,13 +28,13 @@ msgstr "Fenêtres surgissantes gérées dans l'éditeur, avec des règles d'affi
 
 #. Author of the plugin
 #: simple-popup.php
-msgid "Jensen SIU"
-msgstr "Jensen SIU"
+msgid "SeanGooGoo"
+msgstr "SeanGooGoo"
 
 #. Author URI of the plugin
 #: simple-popup.php
-msgid "https://www.jensen.siu.net"
-msgstr "https://www.jensen.siu.net"
+msgid "https://github.com/seangoogoo/simple-popup"
+msgstr "https://github.com/seangoogoo/simple-popup"
 
 #: includes/class-simple-popup-admin-list.php:40
 #: src/editor/index.js:123
