@@ -17,6 +17,7 @@ import './style.scss';
 		'a, button, input, select, textarea, label, summary, [role="button"], [contenteditable]';
 	const FIELD_SELECTOR = 'input, select, textarea, [contenteditable]';
 	const IMAGE_WAIT_MS = 1500;
+	const CLOSE_FALLBACK_MS = 600;
 
 	// Only one popup may open per page view; the first one to be triggered
 	// claims it and disarms the others.
@@ -139,12 +140,50 @@ import './style.scss';
 		window.setTimeout( finish, IMAGE_WAIT_MS );
 	};
 
+	/**
+	 * Plays the closing animation, then closes the dialog. Closes at once when
+	 * the visitor prefers reduced motion (no animation is defined then).
+	 */
+	SimplePopup.prototype.close = function () {
+		const dialog = this.dialog;
+
+		if ( ! dialog.open || dialog.classList.contains( 'simple-popup--closing' ) ) {
+			return;
+		}
+
+		if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) {
+			dialog.close();
+			return;
+		}
+
+		let done = false;
+		function finish() {
+			if ( done ) {
+				return;
+			}
+			done = true;
+			dialog.removeEventListener( 'animationend', onEnd );
+			dialog.classList.remove( 'simple-popup--closing' );
+			dialog.close();
+		}
+		function onEnd( event ) {
+			if ( event.target === dialog ) {
+				finish();
+			}
+		}
+
+		dialog.addEventListener( 'animationend', onEnd );
+		dialog.classList.add( 'simple-popup--closing' );
+		// Safety net if `animationend` never fires (styles overridden by a theme).
+		window.setTimeout( finish, CLOSE_FALLBACK_MS );
+	};
+
 	SimplePopup.prototype.bindClose = function () {
 		const self = this;
 
 		if ( this.closeButton ) {
 			this.closeButton.addEventListener( 'click', function () {
-				self.dialog.close();
+				self.close();
 			} );
 		}
 
@@ -152,8 +191,14 @@ import './style.scss';
 		// event target.
 		this.dialog.addEventListener( 'click', function ( event ) {
 			if ( event.target === self.dialog ) {
-				self.dialog.close();
+				self.close();
 			}
+		} );
+
+		// Escape fires `cancel`: animate instead of the instant native close.
+		this.dialog.addEventListener( 'cancel', function ( event ) {
+			event.preventDefault();
+			self.close();
 		} );
 	};
 

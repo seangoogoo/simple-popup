@@ -4,7 +4,7 @@ Tags: popup, modal, dialog, polylang, newsletter
 Requires at least: 6.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 0.1.4
+Stable tag: 0.1.6
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -44,6 +44,9 @@ Not in this version: a published and active popup is shown on every page.
 Technically yes, but only one popup opens per page view (the first one to trigger). The admin list warns when several popups are active in the same language.
 
 == Changelog ==
+
+= 0.1.6 =
+* Closing animation for the close button, a backdrop click and the Escape key (skipped with reduced motion).
 
 = 0.1.5 =
 * Fix: the popup stays fixed in the viewport (it scrolled with the page when a theme or the plugin styles overrode the dialog `position`).

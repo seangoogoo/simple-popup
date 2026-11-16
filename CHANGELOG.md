@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.6] - 2026-11-16
+
+### Added
+
+- Closing animation (fade and slide down, popup and backdrop), for the close button, a backdrop click and the Escape key. Skipped when the visitor prefers reduced motion.
+
 ## [0.1.5] - 2026-11-16
 
 ### Fixed
