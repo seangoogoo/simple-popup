@@ -2,14 +2,14 @@
 # This file is distributed under the MIT.
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple Popup 0.1.0\n"
+"Project-Id-Version: Simple Popup 0.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/simple-popup\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-16T12:13:18+01:00\n"
+"POT-Creation-Date: 2026-11-16T16:55:45+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.13.0-alpha-275d793\n"
 "X-Domain: simple-popup\n"
@@ -34,120 +34,77 @@ msgstr ""
 msgid "https://www.jensen.siu.net"
 msgstr ""
 
-#: includes/class-simple-popup-admin-list.php:40
-#: src/editor/index.js:123
+#: includes/class-simple-popup-admin-list.php:44
+#: build/editor.js:8
+#: src/editor/index.js:277
 msgid "Languages"
 msgstr ""
 
-#: includes/class-simple-popup-admin-list.php:42
-#: includes/class-simple-popup-admin-list.php:119
-#: includes/class-simple-popup-admin-list.php:153
-#: includes/class-simple-popup-admin-list.php:261
-#: src/editor/index.js:47
-#: src/editor/index.js:132
+#: includes/class-simple-popup-admin-list.php:46
+#: includes/class-simple-popup-admin-list.php:82
+#: includes/class-simple-popup-admin-list.php:125
+#: includes/class-simple-popup-admin-list.php:242
+#: build/editor.js:8
+#: src/editor/index.js:183
+#: src/editor/index.js:286
 msgid "Active"
 msgstr ""
 
-#: includes/class-simple-popup-admin-list.php:45
-#: src/editor/index.js:61
-msgid "Trigger"
+#: includes/class-simple-popup-admin-list.php:49
+msgid "When"
 msgstr ""
 
-#: includes/class-simple-popup-admin-list.php:46
-msgid "Delay"
+#: includes/class-simple-popup-admin-list.php:50
+msgid "Order"
 msgstr ""
 
-#: includes/class-simple-popup-admin-list.php:47
-#: src/editor/index.js:84
-msgid "Frequency"
-msgstr ""
-
-#. translators: %d: number of seconds.
-#: includes/class-simple-popup-admin-list.php:74
-#, php-format
-msgid "%d second"
-msgid_plural "%d seconds"
-msgstr[0] ""
-msgstr[1] ""
-
-#: includes/class-simple-popup-admin-list.php:90
-#: src/editor/index.js:64
-msgid "First gesture"
-msgstr ""
-
-#: includes/class-simple-popup-admin-list.php:91
-#: src/editor/index.js:65
-msgid "Page load"
-msgstr ""
-
-#: includes/class-simple-popup-admin-list.php:92
-#: src/editor/index.js:66
-msgid "Exit intent"
-msgstr ""
-
-#. translators: %d: number of hours.
-#: includes/class-simple-popup-admin-list.php:102
-#, php-format
-msgid "Once every %d hour"
-msgid_plural "Once every %d hours"
-msgstr[0] ""
-msgstr[1] ""
-
-#: includes/class-simple-popup-admin-list.php:105
-#: src/editor/index.js:89
-msgid "Once"
-msgstr ""
-
-#. translators: %d: number of minutes.
-#: includes/class-simple-popup-admin-list.php:110
-#, php-format
-msgid "Once per visit (%d min.)"
-msgstr ""
-
-#: includes/class-simple-popup-admin-list.php:119
-#: includes/class-simple-popup-admin-list.php:153
-#: includes/class-simple-popup-admin-list.php:262
-#: src/editor/index.js:133
+#: includes/class-simple-popup-admin-list.php:82
+#: includes/class-simple-popup-admin-list.php:125
+#: includes/class-simple-popup-admin-list.php:243
+#: build/editor.js:8
+#: src/editor/index.js:287
 msgid "Inactive"
 msgstr ""
 
-#: includes/class-simple-popup-admin-list.php:175
-#: src/editor/index.js:137
+#: includes/class-simple-popup-admin-list.php:147
+#: build/editor.js:8
+#: src/editor/index.js:291
 msgid "+ Add"
 msgstr ""
 
-#: includes/class-simple-popup-admin-list.php:235
+#: includes/class-simple-popup-admin-list.php:216
 msgid "Invalid popup."
 msgstr ""
 
-#: includes/class-simple-popup-admin-list.php:241
+#: includes/class-simple-popup-admin-list.php:222
 msgid "You are not allowed to edit this popup."
 msgstr ""
 
-#: includes/class-simple-popup-admin-list.php:260
+#: includes/class-simple-popup-admin-list.php:241
 msgid "All states"
 msgstr ""
 
-#: includes/class-simple-popup-admin-list.php:342
-msgid "Unknown language"
+#: includes/class-simple-popup-admin-list.php:323
+msgid "Diffusion plan"
 msgstr ""
 
-#. translators: 1: number of active popups, 2: language name.
-#: includes/class-simple-popup-admin-list.php:357
+#: includes/class-simple-popup-admin-list.php:344
 #, php-format
-msgid "%1$d popup is active in %2$s."
-msgid_plural "%1$d popups are active in %2$s."
+msgid "Never two popups at the same time; at least %d second between two. The delay is counted on a single page."
+msgid_plural "Never two popups at the same time; at least %d seconds between two. The delay is counted on a single page."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-simple-popup-admin-list.php:368
-msgid "Visitors only ever see one popup per page view."
+#: includes/class-simple-popup-admin-list.php:355
+msgid "Change the pause setting"
 msgstr ""
 
-#. translators: %d: number of active popups.
-#: includes/class-simple-popup-admin-list.php:372
-#, php-format
-msgid "%d popups are currently active. Visitors only ever see one popup per page view."
+#: includes/class-simple-popup-admin-list.php:377
+msgid "Unknown language"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:500
+msgid "Test"
 msgstr ""
 
 #: includes/class-simple-popup-cpt.php:40
@@ -195,50 +152,191 @@ msgstr ""
 msgid "All Popups"
 msgstr ""
 
-#: includes/class-simple-popup-editor.php:40
+#. translators: %d: number of seconds.
+#: includes/class-simple-popup-cpt.php:208
+#: build/editor.js:2
+#: src/editor/index.js:47
+#, php-format,js-format
+msgid "Opens %d second after the page loads"
+msgid_plural "Opens %d seconds after the page loads"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-simple-popup-cpt.php:214
+#: build/editor.js:2
+#: src/editor/index.js:51
+msgid "Opens when the mouse leaves the page (desktop only)"
+msgstr ""
+
+#. translators: %d: number of seconds.
+#: includes/class-simple-popup-cpt.php:221
+#: build/editor.js:3
+#: src/editor/index.js:55
+#, php-format,js-format
+msgid "Opens on the first gesture after %d second"
+msgid_plural "Opens on the first gesture after %d seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-simple-popup-cpt.php:229
+#: build/editor.js:3
+#: src/editor/index.js:63
+msgid "only once"
+msgstr ""
+
+#. translators: %d: number of hours.
+#: includes/class-simple-popup-cpt.php:235
+#: build/editor.js:4
+#: src/editor/index.js:67
+#, php-format,js-format
+msgid "at most once every %d hour"
+msgid_plural "at most once every %d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of minutes of inactivity.
+#: includes/class-simple-popup-cpt.php:244
+#: build/editor.js:5
+#: src/editor/index.js:73
+#, php-format,js-format
+msgid "once per visit (%d min. of inactivity)"
+msgstr ""
+
+#. translators: 1: when the popup opens, 2: how often it opens.
+#: includes/class-simple-popup-cpt.php:252
+#: build/editor.js:6
+#: src/editor/index.js:80
+#, php-format,js-format
+msgid "%1$s, %2$s."
+msgstr ""
+
+#: includes/class-simple-popup-editor.php:47
 msgid "Other language versions of this popup, for the editor sidebar."
 msgstr ""
 
-#: includes/class-simple-popup-frontend.php:96
+#: includes/class-simple-popup-editor.php:60
+msgid "Other published and active popups in the same language, for conflict detection in the editor sidebar."
+msgstr ""
+
+#: includes/class-simple-popup-editor.php:73
+msgid "URL that opens this popup alone, immediately, without reading or writing its cookie."
+msgstr ""
+
+#: includes/class-simple-popup-frontend.php:195
 msgid "Close"
 msgstr ""
 
-#: src/editor/index.js:44
+#: includes/class-simple-popup-settings.php:38
+msgid "Popups settings"
+msgstr ""
+
+#: includes/class-simple-popup-settings.php:39
+msgid "Settings"
+msgstr ""
+
+#: includes/class-simple-popup-settings.php:61
+msgid "Pause between two popups (seconds)"
+msgstr ""
+
+#: includes/class-simple-popup-settings.php:80
+msgid "Minimum number of seconds between the closing of one popup and the opening of the next, on the same page. A popup whose moment arrives earlier simply waits: it opens as soon as the pause ends. 0 means no pause."
+msgstr ""
+
+#. translators: 1: title of the other popup, 2: pause in seconds.
+#: build/editor.js:7
+#: src/editor/index.js:128
+#, js-format
+msgid "Less than %2$d s apart from \"%1$s\": whichever opens second will wait %2$d s after the first one closes."
+msgstr ""
+
+#. translators: %s: title of the other popup.
+#: build/editor.js:8
+#: src/editor/index.js:115
+#, js-format
+msgid "Same moment as \"%s\": the first one in the list order opens first, the other one then."
+msgstr ""
+
+#: build/editor.js:8
+#: src/editor/index.js:180
 msgid "Popup settings"
 msgstr ""
 
-#: src/editor/index.js:48
+#: build/editor.js:8
+#: src/editor/index.js:184
 msgid "Only a published and active popup is displayed on the front end."
 msgstr ""
 
-#: src/editor/index.js:57
+#: build/editor.js:8
+#: src/editor/index.js:195
+msgid "Test this popup"
+msgstr ""
+
+#: build/editor.js:8
+#: src/editor/index.js:201
 msgid "Shared by all languages"
 msgstr ""
 
-#: src/editor/index.js:75
+#: build/editor.js:8
+#: src/editor/index.js:215
+msgid "Trigger"
+msgstr ""
+
+#: build/editor.js:8
+#: src/editor/index.js:218
+msgid "First gesture"
+msgstr ""
+
+#: build/editor.js:8
+#: src/editor/index.js:219
+msgid "Page load"
+msgstr ""
+
+#: build/editor.js:8
+#: src/editor/index.js:220
+msgid "Exit intent"
+msgstr ""
+
+#: build/editor.js:8
+#: src/editor/index.js:229
 msgid "Delay (seconds)"
 msgstr ""
 
-#: src/editor/index.js:87
+#: build/editor.js:8
+#: src/editor/index.js:238
+msgid "Frequency"
+msgstr ""
+
+#: build/editor.js:8
+#: src/editor/index.js:241
 msgid "Once per visit"
 msgstr ""
 
-#: src/editor/index.js:88
+#: build/editor.js:8
+#: src/editor/index.js:242
 msgid "Every N hours"
 msgstr ""
 
-#: src/editor/index.js:100
+#: build/editor.js:8
+#: src/editor/index.js:243
+msgid "Once"
+msgstr ""
+
+#: build/editor.js:8
+#: src/editor/index.js:254
 msgid "Hours between displays"
 msgstr ""
 
-#: src/editor/index.js:101
+#: build/editor.js:8
+#: src/editor/index.js:255
 msgid "Inactivity minutes before a new visit"
 msgstr ""
 
-#: src/editor/index.js:111
+#: build/editor.js:8
+#: src/editor/index.js:265
 msgid "Conversion selector (optional)"
 msgstr ""
 
-#: src/editor/index.js:112
+#: build/editor.js:8
+#: src/editor/index.js:266
 msgid "CSS selector: once it appears inside the popup, the popup is never shown again to that visitor."
 msgstr ""

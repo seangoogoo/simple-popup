@@ -1,7 +1,8 @@
 <?php
 /**
- * Block editor integration: enqueues the settings panel script/style and
- * exposes a `translations` REST field used by the "Languages" box.
+ * Block editor integration: enqueues the settings panel script/style,
+ * exposes the global pause setting to it, and registers the REST fields it
+ * reads (`translations`, `siblings` for conflict detection, `preview_url`).
  *
  * @package SimplePopup
  */
@@ -28,6 +29,12 @@ class Simple_Popup_Editor {
 		// Same stylesheet as the front end, so the editor preview stays close
 		// to what visitors will actually see.
 		wp_enqueue_style( Simple_Popup_Assets::PUBLIC_STYLE_HANDLE );
+
+		wp_add_inline_script(
+			Simple_Popup_Assets::EDITOR_SCRIPT_HANDLE,
+			'window.simplePopupEditor = ' . wp_json_encode( array( 'gap' => Simple_Popup_Settings::get_gap() ) ) . ';',
+			'before'
+		);
 	}
 
 	public static function register_rest_field() {
@@ -43,6 +50,87 @@ class Simple_Popup_Editor {
 				),
 			)
 		);
+
+		register_rest_field(
+			Simple_Popup_CPT::POST_TYPE,
+			'simple_popup_siblings',
+			array(
+				'get_callback' => array( __CLASS__, 'get_siblings_field' ),
+				'schema'       => array(
+					'description' => __( 'Other published and active popups in the same language, for conflict detection in the editor sidebar.', 'simple-popup' ),
+					'type'        => 'array',
+					'context'     => array( 'edit' ),
+				),
+			)
+		);
+
+		register_rest_field(
+			Simple_Popup_CPT::POST_TYPE,
+			'simple_popup_preview_url',
+			array(
+				'get_callback' => array( __CLASS__, 'get_preview_url_field' ),
+				'schema'       => array(
+					'description' => __( 'URL that opens this popup alone, immediately, without reading or writing its cookie.', 'simple-popup' ),
+					'type'        => 'string',
+					'context'     => array( 'edit' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Builds the list of other published and active popups in the same
+	 * language as `$post`, for the editor's conflict notices: same
+	 * trigger/delay as another one, or a delay close enough to fall inside
+	 * the global pause.
+	 *
+	 * @param array $post REST response post array (contains 'id').
+	 * @return array[]
+	 */
+	public static function get_siblings_field( $post ) {
+		$post_id = (int) $post['id'];
+
+		$args = array(
+			'post_type'        => Simple_Popup_CPT::POST_TYPE,
+			'post_status'      => 'publish',
+			'posts_per_page'   => -1,
+			'post__not_in'     => array( $post_id ),
+			'meta_key'         => '_simple_popup_active',
+			'meta_value'       => '1',
+			'suppress_filters' => false,
+		);
+
+		if ( function_exists( 'pll_get_post_language' ) && function_exists( 'pll_is_translated_post_type' )
+			&& pll_is_translated_post_type( Simple_Popup_CPT::POST_TYPE )
+		) {
+			$language = pll_get_post_language( $post_id );
+
+			if ( $language ) {
+				$args['lang'] = $language;
+			}
+		}
+
+		$siblings = get_posts( $args );
+		$result   = array();
+
+		foreach ( $siblings as $sibling ) {
+			$result[] = array(
+				'id'      => $sibling->ID,
+				'title'   => get_the_title( $sibling ),
+				'trigger' => get_post_meta( $sibling->ID, '_simple_popup_trigger', true ),
+				'delay'   => (int) get_post_meta( $sibling->ID, '_simple_popup_delay', true ),
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $post REST response post array (contains 'id').
+	 * @return string
+	 */
+	public static function get_preview_url_field( $post ) {
+		return Simple_Popup_Frontend::get_preview_url( (int) $post['id'] );
 	}
 
 	/**

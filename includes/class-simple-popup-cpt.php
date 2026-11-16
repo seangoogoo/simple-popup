@@ -64,7 +64,7 @@ class Simple_Popup_CPT {
 				'show_in_nav_menus'   => false,
 				'show_in_rest'        => true,
 				'menu_icon'           => 'dashicons-megaphone',
-				'supports'            => array( 'title', 'editor', 'revisions', 'custom-fields' ),
+				'supports'            => array( 'title', 'editor', 'revisions', 'custom-fields', 'page-attributes' ),
 				'capability_type'     => 'page',
 				'map_meta_cap'        => true,
 				'hierarchical'        => false,
@@ -185,5 +185,73 @@ class Simple_Popup_CPT {
 
 	public static function auth_callback( $allowed, $meta_key, $post_id ) {
 		return current_user_can( 'edit_post', $post_id );
+	}
+
+	/**
+	 * Human sentence describing when and how often a popup opens, used by
+	 * the admin list "When" column, the "Diffusion plan" box, and mirrored
+	 * in the editor sidebar (see src/editor/index.js).
+	 *
+	 * @param int $post_id Popup post ID.
+	 * @return string
+	 */
+	public static function describe( $post_id ) {
+		$trigger         = get_post_meta( $post_id, '_simple_popup_trigger', true );
+		$delay           = (int) get_post_meta( $post_id, '_simple_popup_delay', true );
+		$frequency       = get_post_meta( $post_id, '_simple_popup_frequency', true );
+		$frequency_value = (int) get_post_meta( $post_id, '_simple_popup_frequency_value', true );
+
+		switch ( $trigger ) {
+			case 'load':
+				$moment = sprintf(
+					/* translators: %d: number of seconds. */
+					_n( 'Opens %d second after the page loads', 'Opens %d seconds after the page loads', $delay, 'simple-popup' ),
+					$delay
+				);
+				break;
+
+			case 'exit':
+				$moment = __( 'Opens when the mouse leaves the page (desktop only)', 'simple-popup' );
+				break;
+
+			case 'gesture':
+			default:
+				$moment = sprintf(
+					/* translators: %d: number of seconds. */
+					_n( 'Opens on the first gesture after %d second', 'Opens on the first gesture after %d seconds', $delay, 'simple-popup' ),
+					$delay
+				);
+				break;
+		}
+
+		switch ( $frequency ) {
+			case 'once':
+				$freq = __( 'only once', 'simple-popup' );
+				break;
+
+			case 'hours':
+				$freq = sprintf(
+					/* translators: %d: number of hours. */
+					_n( 'at most once every %d hour', 'at most once every %d hours', $frequency_value, 'simple-popup' ),
+					$frequency_value
+				);
+				break;
+
+			case 'visit':
+			default:
+				$freq = sprintf(
+					/* translators: %d: number of minutes of inactivity. */
+					__( 'once per visit (%d min. of inactivity)', 'simple-popup' ),
+					$frequency_value
+				);
+				break;
+		}
+
+		return sprintf(
+			/* translators: 1: when the popup opens, 2: how often it opens. */
+			__( '%1$s, %2$s.', 'simple-popup' ),
+			$moment,
+			$freq
+		);
 	}
 }

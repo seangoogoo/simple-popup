@@ -2,7 +2,10 @@
 /**
  * Front-end rendering: prints the published and active popups (filtered to
  * the current Polylang language, if any) inside `<dialog>` markup in the
- * footer.
+ * footer, ordered the same way as the admin list (menu order, then date).
+ *
+ * Also handles the `?simple_popup_preview={ID}` link used by editors to test
+ * a single popup (published or not) in isolation.
  *
  * @package SimplePopup
  */
@@ -13,8 +16,64 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Simple_Popup_Frontend {
 
+	const PREVIEW_QUERY_VAR = 'simple_popup_preview';
+
 	public static function init() {
 		add_action( 'wp_footer', array( __CLASS__, 'render_popups' ) );
+	}
+
+	/**
+	 * Builds the preview link for a popup: the home page of its Polylang
+	 * language when Polylang is active, else the default home page, with
+	 * the preview query var appended.
+	 *
+	 * @param int $post_id Popup post ID.
+	 * @return string
+	 */
+	public static function get_preview_url( $post_id ) {
+		$home = home_url( '/' );
+
+		if ( function_exists( 'pll_get_post_language' ) && function_exists( 'pll_home_url' ) ) {
+			$language = pll_get_post_language( $post_id );
+
+			if ( $language ) {
+				$home = pll_home_url( $language );
+			}
+		}
+
+		return add_query_arg( self::PREVIEW_QUERY_VAR, $post_id, $home );
+	}
+
+	/**
+	 * Returns the popup requested via `?simple_popup_preview={ID}`, if the
+	 * current request is a legitimate preview: the post exists, is a
+	 * `simple_popup` (any status but trash), and the current user may edit
+	 * it. Returns null otherwise, so the page renders normally.
+	 *
+	 * @return WP_Post|null
+	 */
+	private static function get_preview_popup() {
+		if ( ! isset( $_GET[ self::PREVIEW_QUERY_VAR ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only preview link, no state change.
+			return null;
+		}
+
+		$post_id = absint( wp_unslash( $_GET[ self::PREVIEW_QUERY_VAR ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( ! $post_id ) {
+			return null;
+		}
+
+		$popup = get_post( $post_id );
+
+		if ( ! $popup || Simple_Popup_CPT::POST_TYPE !== $popup->post_type || 'trash' === $popup->post_status ) {
+			return null;
+		}
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return null;
+		}
+
+		return $popup;
 	}
 
 	/**
@@ -25,8 +84,10 @@ class Simple_Popup_Frontend {
 			'post_type'      => Simple_Popup_CPT::POST_TYPE,
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+			'orderby'        => array(
+				'menu_order' => 'ASC',
+				'date'       => 'DESC',
+			),
 			'no_found_rows'  => true,
 			'meta_key'       => '_simple_popup_active',
 			'meta_value'     => '1',
@@ -51,6 +112,14 @@ class Simple_Popup_Frontend {
 	}
 
 	public static function render_popups() {
+		$preview_popup = self::get_preview_popup();
+
+		if ( $preview_popup ) {
+			self::enqueue_assets();
+			self::render_popup( $preview_popup, true );
+			return;
+		}
+
 		$popups = self::get_displayable_popups();
 
 		if ( empty( $popups ) ) {
@@ -76,15 +145,31 @@ class Simple_Popup_Frontend {
 			return;
 		}
 
-		wp_enqueue_script( Simple_Popup_Assets::PUBLIC_SCRIPT_HANDLE );
-		wp_enqueue_style( Simple_Popup_Assets::PUBLIC_STYLE_HANDLE );
+		self::enqueue_assets();
 
 		foreach ( $displayable as $popup ) {
-			self::render_popup( $popup );
+			self::render_popup( $popup, false );
 		}
 	}
 
-	private static function render_popup( $popup ) {
+	/**
+	 * Enqueues the public assets and passes the global pause (gap) setting,
+	 * in seconds, to the script as `window.simplePopupConfig`.
+	 */
+	private static function enqueue_assets() {
+		wp_enqueue_script( Simple_Popup_Assets::PUBLIC_SCRIPT_HANDLE );
+		wp_enqueue_style( Simple_Popup_Assets::PUBLIC_STYLE_HANDLE );
+
+		$gap = class_exists( 'Simple_Popup_Settings' ) ? (int) Simple_Popup_Settings::get_gap() : 30;
+
+		wp_add_inline_script(
+			Simple_Popup_Assets::PUBLIC_SCRIPT_HANDLE,
+			'window.simplePopupConfig = ' . wp_json_encode( array( 'gap' => max( 0, $gap ) ) ) . ';',
+			'before'
+		);
+	}
+
+	private static function render_popup( $popup, $is_preview = false ) {
 		$id                  = $popup->ID;
 		$trigger             = get_post_meta( $id, '_simple_popup_trigger', true );
 		$delay               = (int) get_post_meta( $id, '_simple_popup_delay', true );
@@ -101,6 +186,7 @@ class Simple_Popup_Frontend {
 			data-frequency="<?php echo esc_attr( $frequency ); ?>"
 			data-frequency-value="<?php echo esc_attr( $frequency_value ); ?>"
 			data-conversion="<?php echo esc_attr( $conversion_selector ); ?>"
+			<?php echo $is_preview ? 'data-preview="1"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute, no user input. ?>
 			aria-labelledby="<?php echo esc_attr( $title_id ); ?>"
 			tabindex="-1"
 			autofocus

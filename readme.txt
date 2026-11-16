@@ -4,7 +4,7 @@ Tags: popup, modal, dialog, polylang, newsletter
 Requires at least: 6.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 0.1.6
+Stable tag: 0.2.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -14,7 +14,7 @@ Editor-managed popup windows, with per-popup display rules, cookies and Polylang
 
 Simple Popup adds a "Popups" content type to the block editor. Each popup is a regular post made of blocks: write it like a page, set a few display rules in the sidebar, publish it, and it is rendered on every page of the site inside a native `<dialog>` element.
 
-There is no page targeting and no scheduling in this version: a popup is shown everywhere while it is published and marked "Active". Exactly one popup opens per page view; the first trigger to fire wins.
+There is no page targeting and no scheduling in this version: a popup is shown everywhere while it is published and marked "Active". Several popups can be active at once: never two open at the same time, with a configurable pause between two.
 
 = Features =
 
@@ -25,7 +25,9 @@ There is no page targeting and no scheduling in this version: a popup is shown e
 * Lazy images inside a popup preload before it opens.
 * No front-end dependencies, no jQuery.
 * Polylang compatible: shared settings, per-language "Active" state and content.
-* Centralized admin list with a per-language toggle column.
+* Centralized admin list with a per-language toggle column, a plain-language "When" column and an "Order" column.
+* Diffusion plan: the active popups of each language, in the order a visitor meets them.
+* "Test" link: preview a popup alone, immediately, without cookies.
 
 == Installation ==
 
@@ -41,9 +43,15 @@ Not in this version: a published and active popup is shown on every page.
 
 = Can two popups be active at once? =
 
-Technically yes, but only one popup opens per page view (the first one to trigger). The admin list warns when several popups are active in the same language.
+Yes. Each one follows its own trigger, delay and frequency. On a page, never two popups are open at the same time, and the next one waits a configurable pause (Popups > Settings, default 30 seconds) after the previous one closes. Ties are broken by the "Order" attribute. The diffusion plan at the top of the list shows the resulting order.
 
 == Changelog ==
+
+= 0.2.0 =
+* Several active popups per language: never two at the same time, configurable pause between two, ties broken by "Order".
+* Admin list: "When" sentence and "Order" columns, diffusion plan, "Test" row action; settings page.
+* Editor: one-sentence summary, conflict notices, "Test this popup" link.
+* Preview URL (`?simple_popup_preview={ID}`) for logged-in editors.
 
 = 0.1.6 =
 * Closing animation for the close button, a backdrop click and the Escape key (skipped with reduced motion).

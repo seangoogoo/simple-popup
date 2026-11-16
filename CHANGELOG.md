@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.0] - 2026-11-16
+
+### Changed
+
+- Several popups can be active in the same language. The "one popup per page view, first trigger wins" rule is replaced by a page-level scheduler: never two popups open at the same time; after a popup closes, the next one waits a configurable pause; a waiting `load` popup opens when the pause ends, a `gesture` popup at the next gesture, an `exit` popup at the next exit intent. Ties are broken by the native "Order" attribute (`menu_order`), then the most recent.
+- Admin list: the Trigger, Delay and Frequency columns are replaced by a plain-language "When" column; new "Order" column. The "several popups active" notice is replaced by a diffusion plan box (active popups per language, in the order a visitor meets them, with the pause rule).
+
+### Added
+
+- `Popups > Settings` page: pause between two popups (`simple_popup_gap`, seconds, default 30).
+- "Order" page attribute, shared by all language versions.
+- Editor panel: one-sentence summary, conflict notices (same moment as another active popup, or within the pause), "Test this popup" link.
+- Preview: `?simple_popup_preview={ID}` renders only that popup and opens it immediately, without cookies or conversion storage, for users who can edit it. "Test" row action in the admin list.
+
 ## [0.1.6] - 2026-11-16
 
 ### Added

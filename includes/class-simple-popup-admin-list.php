@@ -1,8 +1,9 @@
 <?php
 /**
  * Admin list screen for `simple_popup`: columns (including the per-language
- * "Languages" toggle column when Polylang is active), state filter, and the
- * active/inactive toggle action.
+ * "Languages" toggle column when Polylang is active and the "When"/"Order"
+ * columns), state filter, the active/inactive toggle action, the "Test" row
+ * action, and the "Diffusion plan" box.
  *
  * @package SimplePopup
  */
@@ -20,7 +21,10 @@ class Simple_Popup_Admin_List {
 		add_action( 'restrict_manage_posts', array( __CLASS__, 'render_state_filter' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'filter_by_state' ) );
 
-		add_action( 'admin_notices', array( __CLASS__, 'maybe_render_multiple_active_notice' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'render_diffusion_plan' ) );
+		add_action( 'admin_head', array( __CLASS__, 'print_diffusion_plan_styles' ) );
+
+		add_filter( 'post_row_actions', array( __CLASS__, 'add_test_row_action' ), 10, 2 );
 
 		add_action( 'admin_action_simple_popup_toggle_active', array( __CLASS__, 'handle_toggle_active' ) );
 	}
@@ -42,9 +46,8 @@ class Simple_Popup_Admin_List {
 					$new_columns['simple_popup_active'] = __( 'Active', 'simple-popup' );
 				}
 
-				$new_columns['simple_popup_trigger']   = __( 'Trigger', 'simple-popup' );
-				$new_columns['simple_popup_delay']     = __( 'Delay', 'simple-popup' );
-				$new_columns['simple_popup_frequency'] = __( 'Frequency', 'simple-popup' );
+				$new_columns['simple_popup_when']  = __( 'When', 'simple-popup' );
+				$new_columns['simple_popup_order'] = __( 'Order', 'simple-popup' );
 			}
 		}
 
@@ -61,53 +64,13 @@ class Simple_Popup_Admin_List {
 				echo self::get_languages_column_html( $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in get_languages_column_html().
 				break;
 
-			case 'simple_popup_trigger':
-				$trigger = get_post_meta( $post_id, '_simple_popup_trigger', true );
-				echo esc_html( self::trigger_label( $trigger ) );
+			case 'simple_popup_when':
+				echo esc_html( Simple_Popup_CPT::describe( $post_id ) );
 				break;
 
-			case 'simple_popup_delay':
-				$delay = (int) get_post_meta( $post_id, '_simple_popup_delay', true );
-				echo esc_html(
-					sprintf(
-						/* translators: %d: number of seconds. */
-						_n( '%d second', '%d seconds', $delay, 'simple-popup' ),
-						$delay
-					)
-				);
+			case 'simple_popup_order':
+				echo esc_html( get_post_field( 'menu_order', $post_id ) );
 				break;
-
-			case 'simple_popup_frequency':
-				$frequency = get_post_meta( $post_id, '_simple_popup_frequency', true );
-				$value     = (int) get_post_meta( $post_id, '_simple_popup_frequency_value', true );
-				echo esc_html( self::frequency_label( $frequency, $value ) );
-				break;
-		}
-	}
-
-	private static function trigger_label( $trigger ) {
-		$labels = array(
-			'gesture' => __( 'First gesture', 'simple-popup' ),
-			'load'    => __( 'Page load', 'simple-popup' ),
-			'exit'    => __( 'Exit intent', 'simple-popup' ),
-		);
-
-		return isset( $labels[ $trigger ] ) ? $labels[ $trigger ] : $trigger;
-	}
-
-	private static function frequency_label( $frequency, $value ) {
-		switch ( $frequency ) {
-			case 'hours':
-				/* translators: %d: number of hours. */
-				return sprintf( _n( 'Once every %d hour', 'Once every %d hours', $value, 'simple-popup' ), $value );
-
-			case 'once':
-				return __( 'Once', 'simple-popup' );
-
-			case 'visit':
-			default:
-				/* translators: %d: number of minutes. */
-				return sprintf( __( 'Once per visit (%d min.)', 'simple-popup' ), $value );
 		}
 	}
 
@@ -323,12 +286,13 @@ class Simple_Popup_Admin_List {
 	}
 
 	/**
-	 * Warns, on the list screen, when more than one popup is active in the
-	 * same language (or overall, without a multilingual plugin): visitors
-	 * will only ever see one of them per page view, so this is probably
-	 * unintended.
+	 * "Diffusion plan" box at the top of the list screen: one group per
+	 * language with at least one published and active popup, listing them
+	 * in the order a visitor actually meets them on a page (gesture/load
+	 * sorted by delay, then exit; ties by Order then date), plus a reminder
+	 * of the pause rule and a link to the Settings screen.
 	 */
-	public static function maybe_render_multiple_active_notice() {
+	public static function render_diffusion_plan() {
 		$screen = get_current_screen();
 
 		if ( ! $screen || 'edit-' . Simple_Popup_CPT::POST_TYPE !== $screen->id ) {
@@ -337,61 +301,205 @@ class Simple_Popup_Admin_List {
 
 		$active_ids = get_posts(
 			array(
-				'post_type'       => Simple_Popup_CPT::POST_TYPE,
-				'post_status'     => 'publish',
-				'posts_per_page'  => -1,
-				'fields'          => 'ids',
-				'meta_key'        => '_simple_popup_active',
-				'meta_value'      => '1',
+				'post_type'        => Simple_Popup_CPT::POST_TYPE,
+				'post_status'      => 'publish',
+				'posts_per_page'   => -1,
+				'fields'           => 'ids',
+				'meta_key'         => '_simple_popup_active',
+				'meta_value'       => '1',
 				'suppress_filters' => false,
-				'lang'            => '', // Count across all languages, not just the admin's current one.
+				'lang'             => '', // Across all languages, not just the admin's current one.
 			)
 		);
 
-		if ( count( $active_ids ) < 2 ) {
+		if ( empty( $active_ids ) ) {
 			return;
 		}
 
+		$groups = self::group_popups_by_language( $active_ids );
+		$gap    = Simple_Popup_Settings::get_gap();
+		?>
+		<div class="notice simple-popup-diffusion-plan">
+			<h2><?php esc_html_e( 'Diffusion plan', 'simple-popup' ); ?></h2>
+			<?php foreach ( $groups as $group ) : ?>
+				<div class="simple-popup-diffusion-plan__group">
+					<?php if ( $group['label'] ) : ?>
+						<p class="simple-popup-diffusion-plan__lang"><strong><?php echo esc_html( $group['label'] ); ?></strong></p>
+					<?php endif; ?>
+					<ol>
+						<?php foreach ( $group['popups'] as $popup_id ) : ?>
+							<li>
+								<a href="<?php echo esc_url( get_edit_post_link( $popup_id ) ); ?>"><?php echo esc_html( get_the_title( $popup_id ) ); ?></a>
+								&mdash; <?php echo esc_html( Simple_Popup_CPT::describe( $popup_id ) ); ?>
+							</li>
+						<?php endforeach; ?>
+					</ol>
+				</div>
+			<?php endforeach; ?>
+			<p class="simple-popup-diffusion-plan__rule">
+				<?php
+				printf(
+					/* translators: %d: pause in seconds. */
+					esc_html(
+						_n(
+							'Never two popups at the same time; at least %d second between two. The delay is counted on a single page.',
+							'Never two popups at the same time; at least %d seconds between two. The delay is counted on a single page.',
+							$gap,
+							'simple-popup'
+						)
+					),
+					(int) $gap
+				);
+				?>
+				<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=' . Simple_Popup_CPT::POST_TYPE . '&page=' . Simple_Popup_Settings::PAGE_SLUG ) ); ?>">
+					<?php esc_html_e( 'Change the pause setting', 'simple-popup' ); ?>
+				</a>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Groups popup IDs by language (one group, unlabeled, without a
+	 * multilingual plugin), each group's popups sorted in the order a
+	 * visitor meets them on a page.
+	 *
+	 * @param int[] $post_ids Published and active popup IDs.
+	 * @return array<string, array{label: string, popups: int[]}>
+	 */
+	private static function group_popups_by_language( $post_ids ) {
+		$groups = array();
+
 		if ( self::is_multilingual() ) {
-			$by_language = array();
+			foreach ( $post_ids as $post_id ) {
+				$slug = pll_get_post_language( $post_id, 'slug' );
+				$name = pll_get_post_language( $post_id, 'name' );
+				$name = $name ? $name : __( 'Unknown language', 'simple-popup' );
+				$key  = $slug ? $slug : '';
 
-			foreach ( $active_ids as $post_id ) {
-				$lang = pll_get_post_language( $post_id, 'name' );
-				$lang = $lang ? $lang : __( 'Unknown language', 'simple-popup' );
-
-				if ( ! isset( $by_language[ $lang ] ) ) {
-					$by_language[ $lang ] = 0;
-				}
-
-				++$by_language[ $lang ];
-			}
-
-			$messages = array();
-
-			foreach ( $by_language as $lang => $count ) {
-				if ( $count > 1 ) {
-					$messages[] = sprintf(
-						/* translators: 1: number of active popups, 2: language name. */
-						_n( '%1$d popup is active in %2$s.', '%1$d popups are active in %2$s.', $count, 'simple-popup' ),
-						$count,
-						$lang
+				if ( ! isset( $groups[ $key ] ) ) {
+					$groups[ $key ] = array(
+						'label'  => $name,
+						'popups' => array(),
 					);
 				}
-			}
 
-			if ( empty( $messages ) ) {
-				return;
+				$groups[ $key ]['popups'][] = $post_id;
 			}
-
-			$text = __( 'Visitors only ever see one popup per page view.', 'simple-popup' ) . ' ' . implode( ' ', $messages );
 		} else {
-			$text = sprintf(
-				/* translators: %d: number of active popups. */
-				__( '%d popups are currently active. Visitors only ever see one popup per page view.', 'simple-popup' ),
-				count( $active_ids )
+			$groups[''] = array(
+				'label'  => '',
+				'popups' => $post_ids,
 			);
 		}
 
-		printf( '<div class="notice notice-warning"><p>%s</p></div>', esc_html( $text ) );
+		foreach ( $groups as &$group ) {
+			$group['popups'] = self::sort_popups_by_encounter_order( $group['popups'] );
+		}
+		unset( $group );
+
+		return $groups;
+	}
+
+	/**
+	 * Sorts popup IDs the way a visitor meets them on a page: `gesture`/
+	 * `load` by delay (ascending), then `exit`; ties broken by Order
+	 * (`menu_order`, ascending), then date (descending).
+	 *
+	 * @param int[] $post_ids Popup IDs, same language.
+	 * @return int[]
+	 */
+	private static function sort_popups_by_encounter_order( $post_ids ) {
+		$items = array();
+
+		foreach ( $post_ids as $post_id ) {
+			$is_exit = 'exit' === get_post_meta( $post_id, '_simple_popup_trigger', true );
+
+			$items[] = array(
+				'id'         => $post_id,
+				'is_exit'    => $is_exit,
+				'delay'      => $is_exit ? 0 : (int) get_post_meta( $post_id, '_simple_popup_delay', true ),
+				'menu_order' => (int) get_post_field( 'menu_order', $post_id ),
+				'date'       => get_post_field( 'post_date', $post_id ),
+			);
+		}
+
+		usort(
+			$items,
+			function ( $a, $b ) {
+				if ( $a['is_exit'] !== $b['is_exit'] ) {
+					return $a['is_exit'] ? 1 : -1;
+				}
+
+				if ( ! $a['is_exit'] && $a['delay'] !== $b['delay'] ) {
+					return $a['delay'] <=> $b['delay'];
+				}
+
+				if ( $a['menu_order'] !== $b['menu_order'] ) {
+					return $a['menu_order'] <=> $b['menu_order'];
+				}
+
+				return strcmp( $b['date'], $a['date'] );
+			}
+		);
+
+		return wp_list_pluck( $items, 'id' );
+	}
+
+	/**
+	 * Minimal, WP-admin-native styling for the Diffusion plan box, scoped to
+	 * the list screen only.
+	 */
+	public static function print_diffusion_plan_styles() {
+		$screen = get_current_screen();
+
+		if ( ! $screen || 'edit-' . Simple_Popup_CPT::POST_TYPE !== $screen->id ) {
+			return;
+		}
+		?>
+		<style>
+			.simple-popup-diffusion-plan h2 {
+				margin-top: 0.5em;
+				font-size: 14px;
+			}
+			.simple-popup-diffusion-plan__group {
+				margin-bottom: 0.5em;
+			}
+			.simple-popup-diffusion-plan__group ol {
+				margin: 0.25em 0 0.5em 1.5em;
+				list-style: decimal;
+			}
+			.simple-popup-diffusion-plan__rule {
+				color: #646970;
+			}
+		</style>
+		<?php
+	}
+
+	/**
+	 * "Test" row action: opens the popup alone, immediately, on its
+	 * language's home page, for any published popup or any one the current
+	 * user can edit.
+	 *
+	 * @param array   $actions Existing row actions.
+	 * @param WP_Post $post    Row's post.
+	 * @return array
+	 */
+	public static function add_test_row_action( $actions, $post ) {
+		if ( Simple_Popup_CPT::POST_TYPE !== $post->post_type ) {
+			return $actions;
+		}
+
+		if ( 'publish' !== $post->post_status && ! current_user_can( 'edit_post', $post->ID ) ) {
+			return $actions;
+		}
+
+		$actions['simple_popup_test'] = sprintf(
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			esc_url( Simple_Popup_Frontend::get_preview_url( $post->ID ) ),
+			esc_html__( 'Test', 'simple-popup' )
+		);
+
+		return $actions;
 	}
 }

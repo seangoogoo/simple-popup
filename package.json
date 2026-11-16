@@ -1,6 +1,6 @@
 {
 	"name": "simple-popup",
-	"version": "0.1.6",
+	"version": "0.2.0",
 	"description": "A lightweight, generic WordPress plugin for editor-managed popup windows.",
 	"private": true,
 	"license": "MIT",

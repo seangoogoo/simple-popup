@@ -1,7 +1,8 @@
 <?php
 /**
  * Polylang compatibility: makes the post type translatable and keeps the
- * settings that are shared by all language versions of a popup in sync.
+ * settings that are shared by all language versions of a popup in sync
+ * (meta fields and the native `menu_order` "Order" field).
  *
  * @package SimplePopup
  */
@@ -27,6 +28,8 @@ class Simple_Popup_Polylang {
 
 		add_action( 'added_post_meta', array( __CLASS__, 'sync_meta' ), 10, 4 );
 		add_action( 'updated_post_meta', array( __CLASS__, 'sync_meta' ), 10, 4 );
+
+		add_action( 'save_post_' . Simple_Popup_CPT::POST_TYPE, array( __CLASS__, 'sync_menu_order' ), 20, 3 );
 	}
 
 	/**
@@ -120,5 +123,69 @@ class Simple_Popup_Polylang {
 		}
 
 		self::$syncing = array();
+	}
+
+	/**
+	 * Keeps `menu_order` (the native "Order" field, shared like the other
+	 * common settings) in sync across every language version of a popup.
+	 * Writes go straight through `$wpdb`, bypassing `save_post`, so there is
+	 * no update loop to guard against.
+	 *
+	 * When a brand new translation is first saved with the default order
+	 * (0), it adopts an existing sibling's order instead of overwriting
+	 * every sibling with 0.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 * @param bool    $update  Whether this is an existing post being updated.
+	 */
+	public static function sync_menu_order( $post_id, $post, $update ) {
+		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+			return;
+		}
+
+		if ( ! function_exists( 'pll_get_post_translations' ) || ! function_exists( 'pll_is_translated_post_type' )
+			|| ! pll_is_translated_post_type( Simple_Popup_CPT::POST_TYPE )
+		) {
+			return;
+		}
+
+		$translations = pll_get_post_translations( $post_id );
+
+		if ( count( $translations ) <= 1 ) {
+			return;
+		}
+
+		$menu_order = (int) $post->menu_order;
+
+		if ( ! $update && 0 === $menu_order ) {
+			foreach ( $translations as $translation_id ) {
+				$translation_id = (int) $translation_id;
+
+				if ( $translation_id === (int) $post_id ) {
+					continue;
+				}
+
+				$sibling_order = (int) get_post_field( 'menu_order', $translation_id );
+
+				if ( 0 !== $sibling_order ) {
+					$menu_order = $sibling_order;
+					break;
+				}
+			}
+		}
+
+		global $wpdb;
+
+		foreach ( $translations as $translation_id ) {
+			$translation_id = (int) $translation_id;
+
+			if ( $menu_order === (int) get_post_field( 'menu_order', $translation_id ) ) {
+				continue;
+			}
+
+			$wpdb->update( $wpdb->posts, array( 'menu_order' => $menu_order ), array( 'ID' => $translation_id ) );
+			clean_post_cache( $translation_id );
+		}
 	}
 }
