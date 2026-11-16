@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.2] - 2026-11-16
+
+### Fixed
+
+- Run shortcodes in the popup content (`do_shortcode()` after `do_blocks()`): the Shortcode block does not execute them on its own outside `the_content`, so a newsletter form shortcode rendered as plain text.
+
 ## [0.1.1] - 2026-11-16
 
 ### Fixed

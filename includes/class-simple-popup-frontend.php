@@ -106,7 +106,7 @@ class Simple_Popup_Frontend {
 			<h2 id="<?php echo esc_attr( $title_id ); ?>" class="screen-reader-text"><?php echo esc_html( get_the_title( $popup ) ); ?></h2>
 			<button type="button" class="simple-popup__close" aria-label="<?php esc_attr_e( 'Close', 'simple-popup' ); ?>">&times;</button>
 			<div class="simple-popup__content">
-				<?php echo do_blocks( $popup->post_content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- block render output. ?>
+				<?php echo do_shortcode( do_blocks( $popup->post_content ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- block render output. ?>
 			</div>
 		</dialog>
 		<?php

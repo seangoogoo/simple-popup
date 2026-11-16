@@ -10,7 +10,7 @@ There is no page targeting and no scheduling in this version: a popup is shown e
 
 ## Features
 
-- **Block editor content**: a popup's body is rendered with `do_blocks()`, so shortcodes (e.g. a newsletter form) and any block work as expected.
+- **Block editor content**: a popup's body is rendered with `do_blocks()` then `do_shortcode()`, so shortcodes (e.g. a newsletter form) and any block work as expected.
 - **Triggers**: first gesture (scroll, click, key press) after a delay, page load after a delay, or exit intent (desktop only).
 - **Frequency**: once per visit (sliding cookie expiration), at most once every *N* hours, or only once ever.
 - **Conversion tracking**: an optional CSS selector that, once it appears inside the popup (e.g. a success message), prevents the popup from ever being shown again to that visitor. The `wpcf7mailsent` event (Contact Form 7) inside the popup is always treated as a conversion.
