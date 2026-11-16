@@ -4,7 +4,7 @@
 	"description": "A lightweight, generic WordPress plugin for editor-managed popup windows.",
 	"private": true,
 	"license": "MIT",
-	"author": "SeanGooGoo",
+	"author": "Jensen SIU",
 	"scripts": {
 		"build": "wp-scripts build",
 		"start": "wp-scripts start",

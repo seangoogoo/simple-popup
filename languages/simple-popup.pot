@@ -26,12 +26,12 @@ msgstr ""
 
 #. Author of the plugin
 #: simple-popup.php
-msgid "SeanGooGoo"
+msgid "Jensen SIU"
 msgstr ""
 
 #. Author URI of the plugin
 #: simple-popup.php
-msgid "https://github.com/seangoogoo/simple-popup"
+msgid "https://www.jensen.siu.net"
 msgstr ""
 
 #: includes/class-simple-popup-admin-list.php:40

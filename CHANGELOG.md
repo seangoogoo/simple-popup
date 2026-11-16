@@ -2,15 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.4] - 2026-11-16
+
+### Changed
+
+- Admin list, "Languages" column: when all languages are listed (one row per language version), each row only shows its own language state, so toggling visibly changes one row only. The full per-language overview remains when the list is filtered to one language.
+- Plugin author restored to Jensen SIU (0.1.3 changed it by mistake).
+
 ## [0.1.3] - 2026-11-16
 
 ### Fixed
 
 - Toggling a popup from the admin list now returns to the same list view (filters and language kept). The return URL was taken from the HTTP referer, i.e. the page visited before the list.
-
-### Changed
-
-- Plugin author set to SeanGooGoo, linking to the GitHub repository.
 
 ## [0.1.2] - 2026-11-16
 

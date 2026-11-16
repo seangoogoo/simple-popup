@@ -132,8 +132,11 @@ class Simple_Popup_Admin_List {
 	}
 
 	/**
-	 * "Languages" column: current + other language versions, each with their
-	 * active state (toggle link when editable) or a "+ Add" link.
+	 * "Languages" column. When the list is filtered to one language (one row
+	 * per popup), shows every language version with its active state (toggle
+	 * link when editable) or a "+ Add" link. When all languages are listed,
+	 * each version already has its own row: only the row's own language is
+	 * shown, so a toggle visibly changes one row only.
 	 */
 	private static function get_languages_column_html( $post_id ) {
 		if ( ! function_exists( 'pll_languages_list' ) || ! function_exists( 'pll_get_post_translations' ) ) {
@@ -143,8 +146,14 @@ class Simple_Popup_Admin_List {
 		$languages    = pll_languages_list( array( 'fields' => '' ) );
 		$translations = pll_get_post_translations( $post_id );
 		$parts        = array();
+		$row_only     = function_exists( 'PLL' ) && property_exists( PLL(), 'filter_lang' ) && empty( PLL()->filter_lang );
+		$row_language = function_exists( 'pll_get_post_language' ) ? pll_get_post_language( $post_id ) : '';
 
 		foreach ( $languages as $language ) {
+			if ( $row_only && $language->slug !== $row_language ) {
+				continue;
+			}
+
 			$slug           = strtoupper( $language->slug );
 			$translation_id = isset( $translations[ $language->slug ] ) ? (int) $translations[ $language->slug ] : 0;
 
