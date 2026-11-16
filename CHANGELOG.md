@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.1] - 2026-11-16
+
+### Fixed
+
+- Front-end popup query (`get_displayable_popups()`) now explicitly filters by `pll_current_language()` when the post type is translated, instead of relying on Polylang's automatic `pre_get_posts` filtering (which doesn't apply to this secondary `WP_Query`). No fallback to another language. Fixes a French-only popup also rendering on the English/Spanish language domains.
+- Load the bundled `.mo` translations with `load_plugin_textdomain()`, so front-end strings (e.g. the close button's "Close"/"Fermer" label) are translated. The editor script's JSON translations were already wired correctly via `wp_set_script_translations()`.
+
 ## [0.1.0] - 2026-11-16
 
 ### Added

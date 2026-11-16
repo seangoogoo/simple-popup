@@ -21,20 +21,31 @@ class Simple_Popup_Frontend {
 	 * @return WP_Post[]
 	 */
 	private static function get_displayable_popups() {
-		$query = new WP_Query(
-			array(
-				'post_type'      => Simple_Popup_CPT::POST_TYPE,
-				'post_status'    => 'publish',
-				'posts_per_page' => -1,
-				'orderby'        => 'date',
-				'order'          => 'DESC',
-				'no_found_rows'  => true,
-				'meta_key'       => '_simple_popup_active',
-				'meta_value'     => '1',
-				// Default `suppress_filters` (false) lets Polylang's `pre_get_posts`
-				// restrict this query to the current front-end language.
-			)
+		$args = array(
+			'post_type'      => Simple_Popup_CPT::POST_TYPE,
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'no_found_rows'  => true,
+			'meta_key'       => '_simple_popup_active',
+			'meta_value'     => '1',
 		);
+
+		// Explicitly restrict to the current language: don't rely on Polylang's
+		// automatic `pre_get_posts` filtering, which doesn't apply to every
+		// secondary `WP_Query`. No fallback to another language on purpose.
+		if ( function_exists( 'pll_is_translated_post_type' ) && function_exists( 'pll_current_language' )
+			&& pll_is_translated_post_type( Simple_Popup_CPT::POST_TYPE )
+		) {
+			$current_language = pll_current_language();
+
+			if ( $current_language ) {
+				$args['lang'] = $current_language;
+			}
+		}
+
+		$query = new WP_Query( $args );
 
 		return $query->posts;
 	}
