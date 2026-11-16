@@ -1,0 +1,64 @@
+dialog.simple-popup {
+	--simple-popup-max-width: 480px;
+	--simple-popup-radius: 12px;
+	--simple-popup-backdrop: rgba(0, 0, 0, 0.5);
+	--simple-popup-padding: 24px;
+
+	position: relative;
+	box-sizing: border-box;
+	width: min(92vw, var(--simple-popup-max-width));
+	max-width: var(--simple-popup-max-width);
+	max-height: 90vh;
+	overflow: auto;
+	padding: var(--simple-popup-padding);
+	margin: auto;
+	border: 0;
+	border-radius: var(--simple-popup-radius);
+
+	&::backdrop {
+		background: var(--simple-popup-backdrop);
+	}
+
+	.simple-popup__close {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+		width: 32px;
+		height: 32px;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		font-size: 24px;
+		line-height: 1;
+		cursor: pointer;
+	}
+
+	.simple-popup__content {
+		img {
+			max-width: 100%;
+			height: auto;
+		}
+	}
+
+	&[open] {
+		animation: simple-popup-in 0.2s ease-out;
+	}
+}
+
+@keyframes simple-popup-in {
+	from {
+		opacity: 0;
+		transform: translateY(-12px) scale(0.98);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	dialog.simple-popup[open] {
+		animation: none;
+	}
+}

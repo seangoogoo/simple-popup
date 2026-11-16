@@ -1,0 +1,244 @@
+# Copyright (C) 2026 Jensen SIU
+# This file is distributed under the MIT.
+msgid ""
+msgstr ""
+"Project-Id-Version: Simple Popup 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/simple-popup\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-16T12:13:18+01:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.13.0-alpha-275d793\n"
+"X-Domain: simple-popup\n"
+
+#. Plugin Name of the plugin
+#: simple-popup.php
+msgid "Simple Popup"
+msgstr ""
+
+#. Description of the plugin
+#: simple-popup.php
+msgid "Editor-managed popup windows, with per-popup display rules, cookies and Polylang support."
+msgstr ""
+
+#. Author of the plugin
+#: simple-popup.php
+msgid "Jensen SIU"
+msgstr ""
+
+#. Author URI of the plugin
+#: simple-popup.php
+msgid "https://www.jensen.siu.net"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:40
+#: src/editor/index.js:123
+msgid "Languages"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:42
+#: includes/class-simple-popup-admin-list.php:119
+#: includes/class-simple-popup-admin-list.php:153
+#: includes/class-simple-popup-admin-list.php:261
+#: src/editor/index.js:47
+#: src/editor/index.js:132
+msgid "Active"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:45
+#: src/editor/index.js:61
+msgid "Trigger"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:46
+msgid "Delay"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:47
+#: src/editor/index.js:84
+msgid "Frequency"
+msgstr ""
+
+#. translators: %d: number of seconds.
+#: includes/class-simple-popup-admin-list.php:74
+#, php-format
+msgid "%d second"
+msgid_plural "%d seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-simple-popup-admin-list.php:90
+#: src/editor/index.js:64
+msgid "First gesture"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:91
+#: src/editor/index.js:65
+msgid "Page load"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:92
+#: src/editor/index.js:66
+msgid "Exit intent"
+msgstr ""
+
+#. translators: %d: number of hours.
+#: includes/class-simple-popup-admin-list.php:102
+#, php-format
+msgid "Once every %d hour"
+msgid_plural "Once every %d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-simple-popup-admin-list.php:105
+#: src/editor/index.js:89
+msgid "Once"
+msgstr ""
+
+#. translators: %d: number of minutes.
+#: includes/class-simple-popup-admin-list.php:110
+#, php-format
+msgid "Once per visit (%d min.)"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:119
+#: includes/class-simple-popup-admin-list.php:153
+#: includes/class-simple-popup-admin-list.php:262
+#: src/editor/index.js:133
+msgid "Inactive"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:175
+#: src/editor/index.js:137
+msgid "+ Add"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:235
+msgid "Invalid popup."
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:241
+msgid "You are not allowed to edit this popup."
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:260
+msgid "All states"
+msgstr ""
+
+#: includes/class-simple-popup-admin-list.php:342
+msgid "Unknown language"
+msgstr ""
+
+#. translators: 1: number of active popups, 2: language name.
+#: includes/class-simple-popup-admin-list.php:357
+#, php-format
+msgid "%1$d popup is active in %2$s."
+msgid_plural "%1$d popups are active in %2$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-simple-popup-admin-list.php:368
+msgid "Visitors only ever see one popup per page view."
+msgstr ""
+
+#. translators: %d: number of active popups.
+#: includes/class-simple-popup-admin-list.php:372
+#, php-format
+msgid "%d popups are currently active. Visitors only ever see one popup per page view."
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:40
+#: includes/class-simple-popup-cpt.php:51
+msgid "Popups"
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:41
+msgid "Popup"
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:42
+msgid "Add New"
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:43
+msgid "Add New Popup"
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:44
+msgid "Edit Popup"
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:45
+msgid "New Popup"
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:46
+msgid "View Popup"
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:47
+msgid "Search Popups"
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:48
+msgid "No popups found"
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:49
+msgid "No popups found in Trash"
+msgstr ""
+
+#: includes/class-simple-popup-cpt.php:50
+msgid "All Popups"
+msgstr ""
+
+#: includes/class-simple-popup-editor.php:40
+msgid "Other language versions of this popup, for the editor sidebar."
+msgstr ""
+
+#: includes/class-simple-popup-frontend.php:96
+msgid "Close"
+msgstr ""
+
+#: src/editor/index.js:44
+msgid "Popup settings"
+msgstr ""
+
+#: src/editor/index.js:48
+msgid "Only a published and active popup is displayed on the front end."
+msgstr ""
+
+#: src/editor/index.js:57
+msgid "Shared by all languages"
+msgstr ""
+
+#: src/editor/index.js:75
+msgid "Delay (seconds)"
+msgstr ""
+
+#: src/editor/index.js:87
+msgid "Once per visit"
+msgstr ""
+
+#: src/editor/index.js:88
+msgid "Every N hours"
+msgstr ""
+
+#: src/editor/index.js:100
+msgid "Hours between displays"
+msgstr ""
+
+#: src/editor/index.js:101
+msgid "Inactivity minutes before a new visit"
+msgstr ""
+
+#: src/editor/index.js:111
+msgid "Conversion selector (optional)"
+msgstr ""
+
+#: src/editor/index.js:112
+msgid "CSS selector: once it appears inside the popup, the popup is never shown again to that visitor."
+msgstr ""
