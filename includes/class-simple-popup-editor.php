@@ -84,10 +84,16 @@ class Simple_Popup_Editor {
 	 * trigger/delay as another one, or a delay close enough to fall inside
 	 * the global pause.
 	 *
-	 * @param array $post REST response post array (contains 'id').
+	 * @param array           $post       REST response post array (contains 'id').
+	 * @param string          $field_name Unused.
+	 * @param WP_REST_Request $request    Current REST request; used to skip the query outside `edit` context.
 	 * @return array[]
 	 */
-	public static function get_siblings_field( $post ) {
+	public static function get_siblings_field( $post, $field_name, $request ) {
+		if ( 'edit' !== $request['context'] ) {
+			return array();
+		}
+
 		$post_id = (int) $post['id'];
 
 		$args = array(
@@ -126,10 +132,16 @@ class Simple_Popup_Editor {
 	}
 
 	/**
-	 * @param array $post REST response post array (contains 'id').
+	 * @param array           $post       REST response post array (contains 'id').
+	 * @param string          $field_name Unused.
+	 * @param WP_REST_Request $request    Current REST request.
 	 * @return string
 	 */
-	public static function get_preview_url_field( $post ) {
+	public static function get_preview_url_field( $post, $field_name, $request ) {
+		if ( 'edit' !== $request['context'] ) {
+			return '';
+		}
+
 		return Simple_Popup_Frontend::get_preview_url( (int) $post['id'] );
 	}
 

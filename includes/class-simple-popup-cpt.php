@@ -146,7 +146,7 @@ class Simple_Popup_CPT {
 				'type'              => 'integer',
 				'default'           => 30,
 				'show_in_rest'      => true,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_non_negative_int' ),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_frequency_value' ),
 				'auth_callback'     => array( __CLASS__, 'auth_callback' ),
 			)
 		);
@@ -181,6 +181,16 @@ class Simple_Popup_CPT {
 
 	public static function sanitize_non_negative_int( $value ) {
 		return max( 0, (int) $value );
+	}
+
+	/**
+	 * Frequency value (hours between displays, or minutes of inactivity):
+	 * `0` is accepted by the input but has no sensible runtime meaning (the
+	 * public script falls back to its own default), so enforce a minimum
+	 * of 1 here instead of describing a value that is never actually used.
+	 */
+	public static function sanitize_frequency_value( $value ) {
+		return max( 1, (int) $value );
 	}
 
 	public static function auth_callback( $allowed, $meta_key, $post_id ) {

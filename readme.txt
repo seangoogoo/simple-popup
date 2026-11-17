@@ -4,7 +4,7 @@ Tags: popup, modal, dialog, polylang, newsletter
 Requires at least: 6.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,15 @@ Not in this version: a published and active popup is shown on every page.
 Yes. Each one follows its own trigger, delay and frequency. On a page, never two popups are open at the same time, and the next one waits a configurable pause (Popups > Settings, default 30 seconds) after the previous one closes. Ties are broken by the "Order" attribute. The diffusion plan at the top of the list shows the resulting order.
 
 == Changelog ==
+
+= 0.2.1 =
+* Fix: the scheduler could stay stuck forever if `showModal()` threw while opening a popup (e.g. already-open `<dialog>`, detached node); it now releases immediately and moves on to the next popup.
+* Fix: the editor's "same moment" conflict notice between two exit-intent popups now ignores their (hidden, unused) delay.
+* Fix: frequency value can no longer be set to 0, which was described literally ("every 0 hours") but silently replaced by a different default at runtime; minimum is now 1.
+* Fix: the admin list "Test" row action is now only shown when the current user can actually use the preview it links to.
+* Fix: the "Diffusion plan" box no longer renders an empty link when the current user can't edit a listed popup.
+* Fix: the `simple_popup_siblings`/`simple_popup_preview_url` REST fields no longer run their extra query on anonymous/`view` requests.
+* Fix: an invalid conversion selector no longer throws on every DOM mutation inside an open popup; the observer now disconnects instead.
 
 = 0.2.0 =
 * Several active popups per language: never two at the same time, configurable pause between two, ties broken by "Order".

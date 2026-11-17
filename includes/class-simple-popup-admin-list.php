@@ -328,8 +328,13 @@ class Simple_Popup_Admin_List {
 					<?php endif; ?>
 					<ol>
 						<?php foreach ( $group['popups'] as $popup_id ) : ?>
+							<?php $edit_link = get_edit_post_link( $popup_id ); ?>
 							<li>
-								<a href="<?php echo esc_url( get_edit_post_link( $popup_id ) ); ?>"><?php echo esc_html( get_the_title( $popup_id ) ); ?></a>
+								<?php if ( $edit_link ) : ?>
+									<a href="<?php echo esc_url( $edit_link ); ?>"><?php echo esc_html( get_the_title( $popup_id ) ); ?></a>
+								<?php else : ?>
+									<?php echo esc_html( get_the_title( $popup_id ) ); ?>
+								<?php endif; ?>
 								&mdash; <?php echo esc_html( Simple_Popup_CPT::describe( $popup_id ) ); ?>
 							</li>
 						<?php endforeach; ?>
@@ -478,8 +483,9 @@ class Simple_Popup_Admin_List {
 
 	/**
 	 * "Test" row action: opens the popup alone, immediately, on its
-	 * language's home page, for any published popup or any one the current
-	 * user can edit.
+	 * language's home page. The preview itself (`get_preview_url()`)
+	 * requires `edit_post`, so the row action is only offered when the
+	 * current user has it, whatever the popup's status.
 	 *
 	 * @param array   $actions Existing row actions.
 	 * @param WP_Post $post    Row's post.
@@ -490,7 +496,7 @@ class Simple_Popup_Admin_List {
 			return $actions;
 		}
 
-		if ( 'publish' !== $post->post_status && ! current_user_can( 'edit_post', $post->ID ) ) {
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 			return $actions;
 		}
 

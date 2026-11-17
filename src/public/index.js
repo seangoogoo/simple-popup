@@ -129,6 +129,19 @@ import './style.scss';
 		}
 
 		/**
+		 * Releases the scheduler immediately (no pause) after `popup` failed
+		 * to actually open (e.g. `showModal()` threw), so a stuck `current`
+		 * never blocks every other popup on the page.
+		 */
+		function release( popup ) {
+			if ( current === popup ) {
+				current = null;
+			}
+
+			processQueue();
+		}
+
+		/**
 		 * Tries to open `popup` now. Returns `true` if it opened. If it
 		 * can't (busy, or not eligible), returns `false`; `queueOnBusy`
 		 * popups (load triggers) are then queued for the next opportunity.
@@ -150,7 +163,7 @@ import './style.scss';
 			return true;
 		}
 
-		return { attemptOpen: attemptOpen, onClosed: onClosed };
+		return { attemptOpen: attemptOpen, onClosed: onClosed, release: release };
 	} )();
 
 	function SimplePopup( dialog ) {
@@ -347,8 +360,14 @@ import './style.scss';
 
 		if ( this.conversionSelector ) {
 			const observer = new MutationObserver( function () {
-				if ( self.dialog.querySelector( self.conversionSelector ) ) {
-					self.markConverted();
+				try {
+					if ( self.dialog.querySelector( self.conversionSelector ) ) {
+						self.markConverted();
+						observer.disconnect();
+					}
+				} catch ( e ) {
+					// Invalid selector: stop watching instead of throwing on
+					// every subsequent mutation.
 					observer.disconnect();
 				}
 			} );
@@ -370,7 +389,15 @@ import './style.scss';
 		const self = this;
 
 		this.preloadImages( function () {
-			self.dialog.showModal();
+			try {
+				self.dialog.showModal();
+			} catch ( e ) {
+				// Another script may already have opened this <dialog>, or
+				// detached it from the document: never leave the scheduler
+				// stuck waiting for a popup that isn't actually open.
+				scheduler.release( self );
+				return;
+			}
 			// Focus the dialog itself (tabindex="-1"), not its first button,
 			// so no focus ring shows until the visitor uses the keyboard.
 			self.dialog.focus( { preventScroll: true } );
@@ -393,7 +420,11 @@ import './style.scss';
 
 		const self = this;
 		this.preloadImages( function () {
-			self.dialog.showModal();
+			try {
+				self.dialog.showModal();
+			} catch ( e ) {
+				return;
+			}
 			self.dialog.focus( { preventScroll: true } );
 		} );
 	};

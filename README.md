@@ -77,6 +77,12 @@ If Polylang is active, Simple Popup registers `simple_popup` as a translatable p
 
 Without Polylang (or any multilingual plugin), every active popup is a candidate for display; the admin list falls back to a single Active/Inactive toggle column.
 
+## Notes
+
+- **Shared settings sync**: the trigger, delay, frequency, frequency value and conversion selector are kept in sync across language versions only when one of them actually changes (`updated_post_meta`) or a translation is saved from the editor (`save_post`). A translation linked through another path (e.g. a migration script calling `pll_save_post_translations()` directly) stays out of sync with the "Shared by all languages" settings shown in the editor until one of the shared settings is next changed on any version.
+- **REST API exposure**: `simple_popup` is `show_in_rest`, so a published popup's content and settings (trigger, delay, frequency, conversion selector) are readable by anyone through `/wp/v2/simple_popup`, like any other public post type. Drafts and other non-public statuses are not exposed (`read_post`). The `simple_popup_siblings`, `simple_popup_translations` and `simple_popup_preview_url` REST fields are editor-only (`context: edit`) and not returned on anonymous requests.
+- **Cookies are per language version**: each language is a distinct post with its own ID and its own `simple_popup_{ID}` cookie. A visitor who switches language sees what looks like the "same" popup again, because it is a different post as far as the cookie is concerned. This is consistent with the "Active" state and content being per-language.
+
 ## Installation
 
 1. Copy the plugin folder to `wp-content/plugins/simple-popup` (the repository already ships a built `build/` directory, so no build step is required to use it).

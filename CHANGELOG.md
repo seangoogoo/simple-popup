@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.1] - 2026-11-17
+
+### Fixed
+
+- Scheduler: `showModal()` throwing while opening a popup (another script already has the `<dialog>` open, or the node got detached) left `current` set forever, blocking every other popup on the page. `doOpen()`/`openPreview()` now catch the error and release the scheduler (no pause) before continuing.
+- Editor conflict notice: two `exit`-trigger popups with different residual delays (delay is hidden for `exit`, ignored at runtime) were not flagged as a "same moment" conflict. The check for `exit` now ignores delay.
+- Frequency value: `0` was accepted by the field and sanitization, described literally ("every 0 hours"/"0 min of inactivity"), but replaced by a different default (24h/30min) at runtime. Sanitization now enforces a minimum of 1; the editor field's `min` follows.
+- Admin list "Test" row action was shown for any published popup regardless of capability, while the preview it links to requires `edit_post`. It now requires the same capability.
+- "Diffusion plan" box rendered an empty `<a href="">` for a popup the current user can't edit (`get_edit_post_link()` returns null). It now falls back to plain text.
+- `simple_popup_siblings` and `simple_popup_preview_url` REST fields ran their `get_posts()`/URL-building logic on every request, including anonymous `view`-context ones, even though the fields are editor-only. They now return early outside `edit` context.
+- `watchConversion()`: an invalid conversion selector threw inside the `MutationObserver` callback on every subsequent mutation. It now disconnects the observer instead.
+
 ## [0.2.0] - 2026-11-16
 
 ### Changed

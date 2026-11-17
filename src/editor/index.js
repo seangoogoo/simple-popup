@@ -108,7 +108,9 @@ function getConflictMessages( { postId, trigger, delay, siblings } ) {
 			return;
 		}
 
-		if ( sibling.trigger === trigger && sibling.delay === delay ) {
+		const sameMoment = sibling.trigger === trigger && ( 'exit' === trigger || sibling.delay === delay );
+
+		if ( sameMoment ) {
 			messages.push(
 				sprintf(
 					/* translators: %s: title of the other popup. */
@@ -248,7 +250,7 @@ function PopupSettingsPanel() {
 			{ 'once' !== frequency && (
 				<TextControl
 					type="number"
-					min="0"
+					min="1"
 					label={
 						'hours' === frequency
 							? __( 'Hours between displays', 'simple-popup' )
