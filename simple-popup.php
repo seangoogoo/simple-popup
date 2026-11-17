@@ -19,6 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+//* Updates from GitHub releases; disabled in git working copies so a dashboard update never overwrites a clone
+if ( ! file_exists( __DIR__ . '/.git' ) ) {
+	require_once __DIR__ . '/includes/class-simple-popup-updater.php';
+	new Simple_Popup_Updater( __FILE__ );
+}
+
 define( 'SIMPLE_POPUP_VERSION', '0.2.1' );
 define( 'SIMPLE_POPUP_FILE', __FILE__ );
 define( 'SIMPLE_POPUP_DIR', plugin_dir_path( __FILE__ ) );

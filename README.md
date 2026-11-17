@@ -85,18 +85,43 @@ Without Polylang (or any multilingual plugin), every active popup is a candidate
 
 ## Installation
 
-1. Copy the plugin folder to `wp-content/plugins/simple-popup` (the repository already ships a built `build/` directory, so no build step is required to use it).
-2. Activate "Simple Popup" from the Plugins screen.
-3. Create a popup under "Popups", write its content with blocks, set its trigger/frequency in the sidebar, mark it Active, and publish it.
+### For site users
 
-## Development
+1. Download `simple-popup.zip` from the [GitHub Releases page](https://github.com/seangoogoo/simple-popup/releases).
+2. In your WordPress admin, go to Plugins → Add New Plugin → Upload Plugin, select the zip file, then click Install Now.
+3. Activate "Simple Popup".
+4. Create a popup under "Popups", write its content with blocks, set its trigger/frequency in the sidebar, mark it Active, and publish it.
+
+Once installed this way, updates appear on the Plugins page like any other plugin (Dashboard → Updates → Check again to check immediately). "View details" on the Plugins page shows the full changelog; release information is cached for 12 hours (1 hour after a failed check) unless "Check again" is used.
+
+### For development
+
+Installing the plugin from a `git clone` disables the update checker (a `.git` folder in the plugin directory means dashboard updates never overwrite a development clone), so use this method only to work on the code, not on a production site.
 
 ```sh
+cd wp-content/plugins
+git clone https://github.com/seangoogoo/simple-popup.git
+cd simple-popup
 npm install
 npm run build
 ```
 
-`npm run start` runs the webpack watcher during development. The built `build/` directory is versioned in this repository so the plugin can be installed without a build step.
+`npm run start` runs the webpack watcher during development. The built `build/` directory is versioned in this repository, so a `git clone` can also be used without a build step; run a production build before committing.
+
+Other available scripts: `npm run lint:js`, `npm run lint:css`, `npm run format`, `npm run plugin-zip`.
+
+## Releasing
+
+1. While working, add entries under `## [Unreleased]` in `CHANGELOG.md` (Added / Changed / Fixed / Removed) and commit them with the code.
+2. On a clean `main`, run `npm version patch` (fixes) or `npm version minor` (features):
+   - `preversion` refuses to release when `[Unreleased]` has no entry;
+   - `version` copies the version to the plugin header, the `SIMPLE_POPUP_VERSION` constant and `readme.txt`, dates the changelog section, rebuilds, and adds the files to the release commit;
+   - `postversion` pushes the commit and the `vX.Y.Z` tag.
+3. The GitHub workflow `.github/workflows/release.yml` builds `simple-popup.zip` and publishes the GitHub release, with the changelog section as release notes.
+
+If the push fails, run `git push --follow-tags` manually. If the version step fails, run `git checkout -- .` before retrying.
+
+Sites running the plugin see the update in the Plugins page (Dashboard → Updates → Check again shows it immediately). Update checks are disabled in git working copies (a `.git` folder in the plugin directory), so a dashboard update never overwrites a development clone.
 
 ## License
 

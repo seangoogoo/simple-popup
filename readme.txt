@@ -35,6 +35,8 @@ There is no page targeting and no scheduling in this version: a popup is shown e
 2. Activate the plugin through the "Plugins" screen.
 3. Create a popup under "Popups", write its content, set its settings, mark it Active, and publish it.
 
+Installing the plugin via a downloaded `simple-popup.zip` ([GitHub Releases](https://github.com/seangoogoo/simple-popup/releases)) enables updates and "View details" on the Plugins page, through the native Update URI mechanism. Dashboard → Updates → Check again checks for a new release immediately.
+
 == Frequently Asked Questions ==
 
 = Can I target specific pages? =
