@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-17
+
 ### Added
 
 - Updates from GitHub releases ("View details" and one-click updates in the Plugins screen) through the native Update URI mechanism; release workflow publishing `simple-popup.zip` on tag push.
