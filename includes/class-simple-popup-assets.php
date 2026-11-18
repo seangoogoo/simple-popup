@@ -53,19 +53,12 @@ class Simple_Popup_Assets {
 	}
 
 	private static function register_public_assets() {
-		$asset        = self::read_asset_file( 'build/public.asset.php' );
-		$dependencies = $asset['dependencies'];
-
-		// The trigger-test banner uses `@wordpress/i18n`; make sure the
-		// dependency is there even if the build asset file is stale.
-		if ( ! in_array( 'wp-i18n', $dependencies, true ) ) {
-			$dependencies[] = 'wp-i18n';
-		}
+		$asset = self::read_asset_file( 'build/public.asset.php' );
 
 		wp_register_script(
 			self::PUBLIC_SCRIPT_HANDLE,
 			SIMPLE_POPUP_URL . 'build/public.js',
-			$dependencies,
+			$asset['dependencies'],
 			$asset['version'],
 			true
 		);

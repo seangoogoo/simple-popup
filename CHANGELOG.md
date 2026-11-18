@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Removed
+
+- REST field `simple_popup_trigger_test_url`: the editor builds the trigger-test link from `simple_popup_preview_url`.
+
+### Changed
+
+- Preview markup: a single `data-preview="1|trigger"` attribute replaces `data-preview` + `data-preview-mode`.
+- `npm version` now runs `lint:js` and `lint:css` first; TypeScript pinned to 5 so ESLint runs again.
+
 ## [0.3.0] - 2026-11-18
 
 ### Added

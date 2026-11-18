@@ -176,8 +176,8 @@ function getConflictMessages( { postId, trigger, delay, siblings } ) {
 function PopupSettingsPanel() {
 	const [ meta, setMeta ] = useEntityProp( 'postType', POST_TYPE, 'meta' );
 
-	const { translations, siblings, previewUrl, triggerTestUrl, isPublished } =
-		useSelect( ( select ) => {
+	const { translations, siblings, previewUrl, isPublished } = useSelect(
+		( select ) => {
 			const post = select( 'core/editor' ).getCurrentPost();
 
 			return {
@@ -190,12 +190,11 @@ function PopupSettingsPanel() {
 						? post.simple_popup_siblings
 						: [],
 				previewUrl: post ? post.simple_popup_preview_url || '' : '',
-				triggerTestUrl: post
-					? post.simple_popup_trigger_test_url || ''
-					: '',
 				isPublished: post ? 'publish' === post.status : false,
 			};
-		}, [] );
+		},
+		[]
+	);
 
 	const postId = useSelect(
 		( select ) => select( 'core/editor' ).getCurrentPostId(),
@@ -247,13 +246,15 @@ function PopupSettingsPanel() {
 				{ describePopup( trigger, delay, frequency, frequencyValue ) }
 			</p>
 
-			{ isPublished && previewUrl && triggerTestUrl && (
+			{ isPublished && previewUrl && (
 				<div style={ { marginBottom: '16px' } }>
 					<PanelRow>
 						<ExternalLink href={ previewUrl }>
 							{ __( 'Preview', 'simple-popup' ) }
 						</ExternalLink>
-						<ExternalLink href={ triggerTestUrl }>
+						<ExternalLink
+							href={ previewUrl + '&simple_popup_mode=trigger' }
+						>
 							{ __( 'Test the trigger', 'simple-popup' ) }
 						</ExternalLink>
 					</PanelRow>

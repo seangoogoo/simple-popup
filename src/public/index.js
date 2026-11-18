@@ -195,15 +195,11 @@ import { __, sprintf } from '@wordpress/i18n';
 		this.closeButton = dialog.querySelector( '.simple-popup__close' );
 		// Preview (`?simple_popup_preview={ID}`): opened immediately, outside
 		// the scheduler, without reading or writing any cookie/conversion.
-		this.isPreview = '1' === dialog.dataset.preview;
+		this.isPreview = !! dialog.dataset.preview;
 		// Trigger test (`&simple_popup_mode=trigger`): armed with its real
 		// trigger and delay, outside the scheduler, so it opens alone on the
 		// page without reading or writing any cookie/conversion.
-		this.isTriggerTest =
-			this.isPreview && 'trigger' === dialog.dataset.previewMode;
-		// Sentence describing the trigger and delay (set by PHP), shown in
-		// the trigger-test banner.
-		this.previewSummary = dialog.dataset.previewSummary || '';
+		this.isTriggerTest = 'trigger' === dialog.dataset.preview;
 		// Set by the scheduler while this `load` popup is waiting for the
 		// pause to end.
 		this.pendingLoad = false;
@@ -710,7 +706,7 @@ import { __, sprintf } from '@wordpress/i18n';
 				text.textContent = sprintf(
 					/* translators: 1: sentence describing the popup's trigger and delay, 2: number of seconds left before it can trigger. */
 					__( 'Test mode: %1$s Waiting %2$d s…', 'simple-popup' ),
-					popup.previewSummary,
+					popup.dialog.dataset.previewSummary,
 					secondsLeft
 				);
 			}

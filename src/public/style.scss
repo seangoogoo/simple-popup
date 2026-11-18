@@ -120,9 +120,6 @@ dialog.simple-popup {
 // JS (src/public/index.js); always below the popup itself, which renders
 // in the browser's native top layer regardless of this z-index.
 .simple-popup-test-banner {
-	--simple-popup-test-banner-bg: #1e1e1e;
-	--simple-popup-test-banner-color: #fff;
-
 	position: fixed;
 	inset: auto 0 0 0;
 	z-index: 999999;
@@ -132,8 +129,8 @@ dialog.simple-popup {
 	flex-wrap: wrap;
 	gap: 4px 16px;
 	padding: 10px 16px;
-	background: var(--simple-popup-test-banner-bg);
-	color: var(--simple-popup-test-banner-color);
+	background: #1e1e1e;
+	color: #fff;
 	font-size: 13px;
 	line-height: 1.4;
 	text-align: center;

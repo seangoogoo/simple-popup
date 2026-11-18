@@ -501,17 +501,18 @@ class Simple_Popup_Admin_List {
 			return $actions;
 		}
 
-		$actions['simple_popup_preview'] = sprintf(
-			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
-			esc_url( Simple_Popup_Frontend::get_preview_url( $post->ID ) ),
-			esc_html__( 'Preview', 'simple-popup' )
+		$links = array(
+			'simple_popup_preview'      => array( false, __( 'Preview', 'simple-popup' ) ),
+			'simple_popup_trigger_test' => array( true, __( 'Test the trigger', 'simple-popup' ) ),
 		);
 
-		$actions['simple_popup_trigger_test'] = sprintf(
-			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
-			esc_url( Simple_Popup_Frontend::get_preview_url( $post->ID, 'trigger' ) ),
-			esc_html__( 'Test the trigger', 'simple-popup' )
-		);
+		foreach ( $links as $key => list( $trigger, $label ) ) {
+			$actions[ $key ] = sprintf(
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+				esc_url( Simple_Popup_Frontend::get_preview_url( $post->ID, $trigger ) ),
+				esc_html( $label )
+			);
+		}
 
 		return $actions;
 	}
