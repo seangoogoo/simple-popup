@@ -2,8 +2,8 @@
 /**
  * Admin list screen for `simple_popup`: columns (including the per-language
  * "Languages" toggle column when Polylang is active and the "When"/"Order"
- * columns), state filter, the active/inactive toggle action, the "Test" row
- * action, and the "Diffusion plan" box.
+ * columns), state filter, the active/inactive toggle action, the "Preview"
+ * and "Test the trigger" row actions, and the "Diffusion plan" box.
  *
  * @package SimplePopup
  */
@@ -24,7 +24,7 @@ class Simple_Popup_Admin_List {
 		add_action( 'admin_notices', array( __CLASS__, 'render_diffusion_plan' ) );
 		add_action( 'admin_head', array( __CLASS__, 'print_diffusion_plan_styles' ) );
 
-		add_filter( 'post_row_actions', array( __CLASS__, 'add_test_row_action' ), 10, 2 );
+		add_filter( 'post_row_actions', array( __CLASS__, 'add_test_row_actions' ), 10, 2 );
 
 		add_action( 'admin_action_simple_popup_toggle_active', array( __CLASS__, 'handle_toggle_active' ) );
 	}
@@ -482,16 +482,17 @@ class Simple_Popup_Admin_List {
 	}
 
 	/**
-	 * "Test" row action: opens the popup alone, immediately, on its
-	 * language's home page. The preview itself (`get_preview_url()`)
-	 * requires `edit_post`, so the row action is only offered when the
-	 * current user has it, whatever the popup's status.
+	 * "Preview" and "Test the trigger" row actions: "Preview" opens the
+	 * popup alone, immediately, ignoring its trigger and delay; "Test the
+	 * trigger" opens it alone with its real trigger and delay. Both land
+	 * on the popup's language home page and require `edit_post`
+	 * (`get_preview_url()` re-checks it), whatever the popup's status.
 	 *
 	 * @param array   $actions Existing row actions.
 	 * @param WP_Post $post    Row's post.
 	 * @return array
 	 */
-	public static function add_test_row_action( $actions, $post ) {
+	public static function add_test_row_actions( $actions, $post ) {
 		if ( Simple_Popup_CPT::POST_TYPE !== $post->post_type ) {
 			return $actions;
 		}
@@ -500,10 +501,16 @@ class Simple_Popup_Admin_List {
 			return $actions;
 		}
 
-		$actions['simple_popup_test'] = sprintf(
+		$actions['simple_popup_preview'] = sprintf(
 			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
 			esc_url( Simple_Popup_Frontend::get_preview_url( $post->ID ) ),
-			esc_html__( 'Test', 'simple-popup' )
+			esc_html__( 'Preview', 'simple-popup' )
+		);
+
+		$actions['simple_popup_trigger_test'] = sprintf(
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			esc_url( Simple_Popup_Frontend::get_preview_url( $post->ID, 'trigger' ) ),
+			esc_html__( 'Test the trigger', 'simple-popup' )
 		);
 
 		return $actions;

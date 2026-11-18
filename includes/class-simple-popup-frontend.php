@@ -5,7 +5,9 @@
  * footer, ordered the same way as the admin list (menu order, then date).
  *
  * Also handles the `?simple_popup_preview={ID}` link used by editors to test
- * a single popup (published or not) in isolation.
+ * a single popup (published or not) in isolation, either as an immediate
+ * preview or, with `&simple_popup_mode=trigger`, as a test of its real
+ * trigger and delay.
  *
  * @package SimplePopup
  */
@@ -17,6 +19,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Simple_Popup_Frontend {
 
 	const PREVIEW_QUERY_VAR = 'simple_popup_preview';
+	const MODE_QUERY_VAR    = 'simple_popup_mode';
+	const MODE_PREVIEW      = 'preview';
+	const MODE_TRIGGER      = 'trigger';
 
 	public static function init() {
 		add_action( 'wp_footer', array( __CLASS__, 'render_popups' ) );
@@ -25,12 +30,15 @@ class Simple_Popup_Frontend {
 	/**
 	 * Builds the preview link for a popup: the home page of its Polylang
 	 * language when Polylang is active, else the default home page, with
-	 * the preview query var appended.
+	 * the preview query var appended. Mode `trigger` adds the mode query
+	 * var; mode `preview` (default) keeps the URL unchanged, for backward
+	 * compatibility.
 	 *
-	 * @param int $post_id Popup post ID.
+	 * @param int    $post_id Popup post ID.
+	 * @param string $mode    'preview' (default) or 'trigger'.
 	 * @return string
 	 */
-	public static function get_preview_url( $post_id ) {
+	public static function get_preview_url( $post_id, $mode = 'preview' ) {
 		$home = home_url( '/' );
 
 		if ( function_exists( 'pll_get_post_language' ) && function_exists( 'pll_home_url' ) ) {
@@ -41,16 +49,24 @@ class Simple_Popup_Frontend {
 			}
 		}
 
-		return add_query_arg( self::PREVIEW_QUERY_VAR, $post_id, $home );
+		$url = add_query_arg( self::PREVIEW_QUERY_VAR, $post_id, $home );
+
+		if ( self::MODE_TRIGGER === $mode ) {
+			$url = add_query_arg( self::MODE_QUERY_VAR, self::MODE_TRIGGER, $url );
+		}
+
+		return $url;
 	}
 
 	/**
-	 * Returns the popup requested via `?simple_popup_preview={ID}`, if the
-	 * current request is a legitimate preview: the post exists, is a
-	 * `simple_popup` (any status but trash), and the current user may edit
-	 * it. Returns null otherwise, so the page renders normally.
+	 * Returns the popup and mode requested via `?simple_popup_preview={ID}`
+	 * (optionally `&simple_popup_mode=trigger`), if the current request is
+	 * a legitimate preview: the post exists, is a `simple_popup` (any
+	 * status but trash), and the current user may edit it. Returns null
+	 * otherwise, so the page renders normally. An unknown or missing mode
+	 * falls back to `preview`.
 	 *
-	 * @return WP_Post|null
+	 * @return array{popup: WP_Post, mode: string}|null
 	 */
 	private static function get_preview_popup() {
 		if ( ! isset( $_GET[ self::PREVIEW_QUERY_VAR ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only preview link, no state change.
@@ -73,7 +89,16 @@ class Simple_Popup_Frontend {
 			return null;
 		}
 
-		return $popup;
+		$mode = isset( $_GET[ self::MODE_QUERY_VAR ] ) ? sanitize_key( wp_unslash( $_GET[ self::MODE_QUERY_VAR ] ) ) : self::MODE_PREVIEW; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( self::MODE_TRIGGER !== $mode ) {
+			$mode = self::MODE_PREVIEW;
+		}
+
+		return array(
+			'popup' => $popup,
+			'mode'  => $mode,
+		);
 	}
 
 	/**
@@ -112,11 +137,11 @@ class Simple_Popup_Frontend {
 	}
 
 	public static function render_popups() {
-		$preview_popup = self::get_preview_popup();
+		$preview = self::get_preview_popup();
 
-		if ( $preview_popup ) {
+		if ( $preview ) {
 			self::enqueue_assets();
-			self::render_popup( $preview_popup, true );
+			self::render_popup( $preview['popup'], true, $preview['mode'] );
 			return;
 		}
 
@@ -169,7 +194,12 @@ class Simple_Popup_Frontend {
 		);
 	}
 
-	private static function render_popup( $popup, $is_preview = false ) {
+	/**
+	 * @param WP_Post $popup      Popup post.
+	 * @param bool    $is_preview Whether this is a preview request.
+	 * @param string  $mode       'preview' or 'trigger', only meaningful when $is_preview is true.
+	 */
+	private static function render_popup( $popup, $is_preview = false, $mode = self::MODE_PREVIEW ) {
 		$id                  = $popup->ID;
 		$trigger             = get_post_meta( $id, '_simple_popup_trigger', true );
 		$delay               = (int) get_post_meta( $id, '_simple_popup_delay', true );
@@ -177,6 +207,16 @@ class Simple_Popup_Frontend {
 		$frequency_value     = (int) get_post_meta( $id, '_simple_popup_frequency_value', true );
 		$conversion_selector = get_post_meta( $id, '_simple_popup_conversion_selector', true );
 		$title_id            = 'simple-popup-title-' . $id;
+
+		$preview_attrs = '';
+
+		if ( $is_preview ) {
+			$preview_attrs = sprintf( ' data-preview="1" data-preview-mode="%s"', esc_attr( $mode ) );
+
+			if ( self::MODE_TRIGGER === $mode ) {
+				$preview_attrs .= sprintf( ' data-preview-summary="%s"', esc_attr( Simple_Popup_CPT::describe( $id ) ) );
+			}
+		}
 		?>
 		<dialog
 			class="simple-popup"
@@ -186,7 +226,7 @@ class Simple_Popup_Frontend {
 			data-frequency="<?php echo esc_attr( $frequency ); ?>"
 			data-frequency-value="<?php echo esc_attr( $frequency_value ); ?>"
 			data-conversion="<?php echo esc_attr( $conversion_selector ); ?>"
-			<?php echo $is_preview ? 'data-preview="1"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute, no user input. ?>
+			<?php echo $preview_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above. ?>
 			aria-labelledby="<?php echo esc_attr( $title_id ); ?>"
 			tabindex="-1"
 			autofocus

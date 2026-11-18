@@ -1,4 +1,5 @@
 import './style.scss';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Public behaviour for `<dialog class="simple-popup">` elements rendered by
@@ -179,6 +180,13 @@ import './style.scss';
 		// Preview (`?simple_popup_preview={ID}`): opened immediately, outside
 		// the scheduler, without reading or writing any cookie/conversion.
 		this.isPreview = '1' === dialog.dataset.preview;
+		// Trigger test (`&simple_popup_mode=trigger`): armed with its real
+		// trigger and delay, outside the scheduler, so it opens alone on the
+		// page without reading or writing any cookie/conversion.
+		this.isTriggerTest = this.isPreview && 'trigger' === dialog.dataset.previewMode;
+		// Sentence describing the trigger and delay (set by PHP), shown in
+		// the trigger-test banner.
+		this.previewSummary = dialog.dataset.previewSummary || '';
 		// Set by the scheduler while this `load` popup is waiting for the
 		// pause to end.
 		this.pendingLoad = false;
@@ -236,6 +244,23 @@ import './style.scss';
 		return (
 			typeof this.dialog.showModal === 'function' && ! this.isSeen() && ! this.isConverted()
 		);
+	};
+
+	/**
+	 * Tries to open this popup now. Normal popups go through the
+	 * page-level scheduler; a trigger-test popup (alone on the page, no
+	 * pause) opens directly instead.
+	 */
+	SimplePopup.prototype.attemptOpen = function ( queueOnBusy ) {
+		if ( this.isTriggerTest ) {
+			if ( this.dialog.open || ! this.canOpen() ) {
+				return false;
+			}
+			this.doOpen();
+			return true;
+		}
+
+		return scheduler.attemptOpen( this, queueOnBusy );
 	};
 
 	/**
@@ -457,7 +482,7 @@ import './style.scss';
 			// popup is open or the pause is running, this gesture doesn't
 			// count: a later one must give this popup a fresh chance
 			// (rule 4, "gesture").
-			if ( scheduler.attemptOpen( self, false ) ) {
+			if ( self.attemptOpen( false ) ) {
 				unbind();
 			}
 		}
@@ -482,7 +507,7 @@ import './style.scss';
 		window.setTimeout( function () {
 			// Queue this popup if the scheduler is busy: a `load` trigger
 			// opens automatically as soon as it frees up (rule 4, "load").
-			scheduler.attemptOpen( self, true );
+			self.attemptOpen( true );
 		}, this.delay );
 	};
 
@@ -500,8 +525,22 @@ import './style.scss';
 			}
 			// Not queued: if the scheduler is busy, this exit intent doesn't
 			// count, a later one must try again (rule 4, "exit").
-			scheduler.attemptOpen( self, false );
+			self.attemptOpen( false );
 		} );
+	};
+
+	/**
+	 * Starts listening for this popup's trigger: `load`, `exit`, or the
+	 * default `gesture`.
+	 */
+	SimplePopup.prototype.armTrigger = function () {
+		if ( 'load' === this.trigger ) {
+			this.armLoad();
+		} else if ( 'exit' === this.trigger ) {
+			this.armExit();
+		} else {
+			this.armGesture();
+		}
 	};
 
 	SimplePopup.prototype.arm = function () {
@@ -518,15 +557,139 @@ import './style.scss';
 
 		this.bindClose();
 		this.bindScheduler();
-
-		if ( 'load' === this.trigger ) {
-			this.armLoad();
-		} else if ( 'exit' === this.trigger ) {
-			this.armExit();
-		} else {
-			this.armGesture();
-		}
+		this.armTrigger();
 	};
+
+	/**
+	 * Arms a trigger-test popup (`&simple_popup_mode=trigger`): same
+	 * trigger and delay as a normal visit, but outside the scheduler.
+	 * After a close, `gesture` is re-armed without delay (the delay counts
+	 * from page load, already elapsed) so the trigger can be tried again
+	 * without reloading. `load` is not re-armed (it would reopen on its
+	 * own in a loop), and `exit`'s listener is never unbound (see
+	 * `armExit`).
+	 */
+	SimplePopup.prototype.armTriggerTest = function () {
+		const self = this;
+
+		this.bindClose();
+		this.armTrigger();
+
+		this.dialog.addEventListener( 'close', function () {
+			if ( 'gesture' === self.trigger ) {
+				self.delay = 0;
+				self.armGesture();
+			}
+		} );
+	};
+
+	/**
+	 * Discreet bar shown only in trigger-test mode: explains what to do
+	 * to trigger the popup, counts down its delay, and reports the
+	 * outcome. Always below the popup itself, which renders in the
+	 * browser's native top layer regardless of any z-index here.
+	 */
+	function createTriggerTestBanner( popup ) {
+		const bar = document.createElement( 'div' );
+		bar.className = 'simple-popup-test-banner';
+		bar.setAttribute( 'role', 'status' );
+		bar.setAttribute( 'aria-live', 'polite' );
+
+		const text = document.createElement( 'span' );
+		bar.appendChild( text );
+
+		const closeLink = document.createElement( 'a' );
+		closeLink.className = 'simple-popup-test-banner__close';
+		closeLink.href = closeTestUrl();
+		closeLink.textContent = __( 'Close test', 'simple-popup' );
+		bar.appendChild( closeLink );
+
+		document.body.appendChild( bar );
+
+		let countdownId = null;
+
+		function closeTestUrl() {
+			const url = new URL( window.location.href );
+			url.searchParams.delete( 'simple_popup_preview' );
+			url.searchParams.delete( 'simple_popup_mode' );
+			return url.toString();
+		}
+
+		function stopCountdown() {
+			if ( null !== countdownId ) {
+				window.clearInterval( countdownId );
+				countdownId = null;
+			}
+		}
+
+		function showReady() {
+			stopCountdown();
+
+			if ( 'load' === popup.trigger ) {
+				text.textContent = __( 'Opening…', 'simple-popup' );
+			} else if ( 'exit' === popup.trigger ) {
+				if ( window.matchMedia && window.matchMedia( '(pointer: fine)' ).matches ) {
+					text.textContent = __(
+						'Now: move the mouse out of the window, towards the top',
+						'simple-popup'
+					);
+				} else {
+					text.textContent = __(
+						'Exit intent only works on a desktop computer with a mouse.',
+						'simple-popup'
+					);
+				}
+			} else {
+				text.textContent = __( 'Now: scroll, click or press a key', 'simple-popup' );
+			}
+		}
+
+		function showWaiting() {
+			let secondsLeft = Math.ceil( popup.delay / 1000 );
+
+			function tick() {
+				text.textContent = sprintf(
+					/* translators: 1: sentence describing the popup's trigger and delay, 2: number of seconds left before it can trigger. */
+					__( 'Test mode: %1$s Waiting %2$d s…', 'simple-popup' ),
+					popup.previewSummary,
+					secondsLeft
+				);
+			}
+
+			if ( secondsLeft <= 0 ) {
+				showReady();
+				return;
+			}
+
+			tick();
+
+			countdownId = window.setInterval( function () {
+				secondsLeft--;
+				if ( secondsLeft <= 0 ) {
+					stopCountdown();
+					showReady();
+					return;
+				}
+				tick();
+			}, 1000 );
+		}
+
+		popup.dialog.addEventListener( 'close', function () {
+			stopCountdown();
+			text.textContent =
+				'load' === popup.trigger
+					? __( 'Popup closed. Reload the page to test again, or close this test.', 'simple-popup' )
+					: __( 'Popup closed. Trigger it again or close this test.', 'simple-popup' );
+		} );
+
+		// `exit` isn't delay-based (see `armExit`): skip straight to the
+		// ready message instead of counting down a delay that doesn't apply.
+		if ( 'exit' === popup.trigger ) {
+			showReady();
+		} else {
+			showWaiting();
+		}
+	}
 
 	function init() {
 		const dialogs = document.querySelectorAll( 'dialog.simple-popup' );
@@ -535,7 +698,12 @@ import './style.scss';
 			const popup = new SimplePopup( dialog );
 
 			if ( popup.isPreview ) {
-				popup.openPreview();
+				if ( popup.isTriggerTest ) {
+					createTriggerTestBanner( popup );
+					popup.armTriggerTest();
+				} else {
+					popup.openPreview();
+				}
 				return;
 			}
 

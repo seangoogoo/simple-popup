@@ -2,7 +2,8 @@
 /**
  * Block editor integration: enqueues the settings panel script/style,
  * exposes the global pause setting to it, and registers the REST fields it
- * reads (`translations`, `siblings` for conflict detection, `preview_url`).
+ * reads (`translations`, `siblings` for conflict detection, `preview_url`,
+ * `trigger_test_url`).
  *
  * @package SimplePopup
  */
@@ -76,6 +77,19 @@ class Simple_Popup_Editor {
 				),
 			)
 		);
+
+		register_rest_field(
+			Simple_Popup_CPT::POST_TYPE,
+			'simple_popup_trigger_test_url',
+			array(
+				'get_callback' => array( __CLASS__, 'get_trigger_test_url_field' ),
+				'schema'       => array(
+					'description' => __( 'URL that opens this popup alone with its real trigger and delay, without reading or writing its cookie.', 'simple-popup' ),
+					'type'        => 'string',
+					'context'     => array( 'edit' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -143,6 +157,20 @@ class Simple_Popup_Editor {
 		}
 
 		return Simple_Popup_Frontend::get_preview_url( (int) $post['id'] );
+	}
+
+	/**
+	 * @param array           $post       REST response post array (contains 'id').
+	 * @param string          $field_name Unused.
+	 * @param WP_REST_Request $request    Current REST request.
+	 * @return string
+	 */
+	public static function get_trigger_test_url_field( $post, $field_name, $request ) {
+		if ( 'edit' !== $request['context'] ) {
+			return '';
+		}
+
+		return Simple_Popup_Frontend::get_preview_url( (int) $post['id'], 'trigger' );
 	}
 
 	/**

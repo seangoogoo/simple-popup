@@ -27,7 +27,7 @@ There is no page targeting and no scheduling in this version: a popup is shown e
 * Polylang compatible: shared settings, per-language "Active" state and content.
 * Centralized admin list with a per-language toggle column, a plain-language "When" column and an "Order" column.
 * Diffusion plan: the active popups of each language, in the order a visitor meets them.
-* "Test" link: preview a popup alone, immediately, without cookies.
+* "Preview" and "Test the trigger" links: open a popup alone, without cookies, either immediately or with its real trigger and delay.
 
 == Installation ==
 

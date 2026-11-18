@@ -141,7 +141,7 @@ function getConflictMessages( { postId, trigger, delay, siblings } ) {
 function PopupSettingsPanel() {
 	const [ meta, setMeta ] = useEntityProp( 'postType', POST_TYPE, 'meta' );
 
-	const { translations, siblings, previewUrl, isPublished } = useSelect( ( select ) => {
+	const { translations, siblings, previewUrl, triggerTestUrl, isPublished } = useSelect( ( select ) => {
 		const post = select( 'core/editor' ).getCurrentPost();
 
 		return {
@@ -152,6 +152,7 @@ function PopupSettingsPanel() {
 				? post.simple_popup_siblings
 				: [],
 			previewUrl: post ? post.simple_popup_preview_url || '' : '',
+			triggerTestUrl: post ? post.simple_popup_trigger_test_url || '' : '',
 			isPublished: post ? 'publish' === post.status : false,
 		};
 	}, [] );
@@ -191,14 +192,6 @@ function PopupSettingsPanel() {
 				onChange={ ( value ) => updateMeta( { _simple_popup_active: value } ) }
 			/>
 
-			{ isPublished && previewUrl && (
-				<PanelRow>
-					<ExternalLink href={ previewUrl }>
-						{ __( 'Test this popup', 'simple-popup' ) }
-					</ExternalLink>
-				</PanelRow>
-			) }
-
 			<PanelRow>
 				<strong>{ __( 'Shared by all languages', 'simple-popup' ) }</strong>
 			</PanelRow>
@@ -206,6 +199,22 @@ function PopupSettingsPanel() {
 			<p className="simple-popup-summary">
 				{ describePopup( trigger, delay, frequency, frequencyValue ) }
 			</p>
+
+			{ isPublished && previewUrl && triggerTestUrl && (
+				<div style={ { marginBottom: '16px' } }>
+					<PanelRow>
+						<ExternalLink href={ previewUrl }>
+							{ __( 'Preview', 'simple-popup' ) }
+						</ExternalLink>
+						<ExternalLink href={ triggerTestUrl }>
+							{ __( 'Test the trigger', 'simple-popup' ) }
+						</ExternalLink>
+					</PanelRow>
+					<p className="components-base-control__help" style={ { marginTop: '4px' } }>
+						{ __( 'Preview opens right away, ignoring the trigger and delay.', 'simple-popup' ) }
+					</p>
+				</div>
+			) }
 
 			{ conflictMessages.map( ( message, index ) => (
 				<Notice key={ index } status="warning" isDismissible={ false }>

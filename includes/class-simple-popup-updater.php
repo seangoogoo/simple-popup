@@ -142,7 +142,7 @@ class Simple_Popup_Updater {
 			. '<li>Display frequency: once per visit, every N hours, or once ever, enforced with a per-popup cookie</li>'
 			. '<li>Several popups can be active at once, with a diffusion plan, a pause between two, and an order</li>'
 			. '<li>Polylang support: shared settings, per-language "Active" state and content</li>'
-			. '<li>"Test" preview link to open a popup alone, immediately, without cookies</li>'
+			. '<li>"Preview" and "Test the trigger" links to open a popup alone, without cookies, either immediately or with its real trigger and delay</li>'
 			. '</ul>';
 		return (object) array(
 			'name'          => $plugin['Name'],

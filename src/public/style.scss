@@ -109,9 +109,60 @@ dialog.simple-popup {
 	}
 }
 
+// Discreet bar shown only while testing a popup's trigger
+// (`?simple_popup_preview={ID}&simple_popup_mode=trigger`): explains what
+// to do, counts down the delay, and reports the outcome. Built entirely in
+// JS (src/public/index.js); always below the popup itself, which renders
+// in the browser's native top layer regardless of this z-index.
+.simple-popup-test-banner {
+	--simple-popup-test-banner-bg: #1e1e1e;
+	--simple-popup-test-banner-color: #fff;
+
+	position: fixed;
+	inset: auto 0 0 0;
+	z-index: 999999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	padding: 10px 16px;
+	background: var(--simple-popup-test-banner-bg);
+	color: var(--simple-popup-test-banner-color);
+	font-size: 13px;
+	line-height: 1.4;
+	text-align: center;
+	animation: simple-popup-test-banner-in 0.2s ease-out;
+
+	&__close {
+		flex: none;
+		color: inherit;
+		text-decoration: underline;
+
+		&:hover,
+		&:focus {
+			text-decoration: none;
+		}
+	}
+}
+
+@keyframes simple-popup-test-banner-in {
+	from {
+		transform: translateY(100%);
+	}
+
+	to {
+		transform: none;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	dialog.simple-popup[open],
 	dialog.simple-popup[open]::backdrop {
+		animation: none;
+	}
+
+	.simple-popup-test-banner {
 		animation: none;
 	}
 }
