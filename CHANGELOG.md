@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-11-18
+
 ### Fixed
 
 - "View details" kept showing an older version and changelog for up to 12 hours after a new release (cached release information). The release is now revalidated with GitHub on every update check and every "View details" (conditional request: no API quota used when nothing changed), under a new cache key, so the stale cache is ignored right after updating.
