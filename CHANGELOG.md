@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-18
+
 ### Removed
 
 - REST field `simple_popup_trigger_test_url`: the editor builds the trigger-test link from `simple_popup_preview_url` (with `addQueryArgs`).

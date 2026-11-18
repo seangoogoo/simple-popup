@@ -4,7 +4,7 @@
  * Description:       Editor-managed popup windows, with per-popup display rules, cookies and Polylang support.
  * Requires at least: 6.6
  * Requires PHP:      7.4
- * Version:           0.3.0
+ * Version:           0.3.1
  * Author:            Jensen SIU
  * Author URI:        https://www.jensen.siu.net
  * License:           MIT
@@ -25,7 +25,7 @@ if ( ! file_exists( __DIR__ . '/.git' ) ) {
 	new Simple_Popup_Updater( __FILE__ );
 }
 
-define( 'SIMPLE_POPUP_VERSION', '0.3.0' );
+define( 'SIMPLE_POPUP_VERSION', '0.3.1' );
 define( 'SIMPLE_POPUP_FILE', __FILE__ );
 define( 'SIMPLE_POPUP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SIMPLE_POPUP_URL', plugin_dir_url( __FILE__ ) );
