@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"author": "Jensen SIU",
 	"scripts": {
-		"preversion": "node bin/release.mjs check",
+		"preversion": "node bin/release.mjs check && npm run lint:js && npm run lint:css",
 		"version": "node bin/release.mjs sync && npm run build && git add simple-popup.php readme.txt CHANGELOG.md src build",
 		"postversion": "git push --follow-tags",
 		"build": "wp-scripts build",
@@ -28,5 +28,8 @@
 	],
 	"devDependencies": {
 		"@wordpress/scripts": "^30.0.0"
+	},
+	"overrides": {
+		"typescript": "^5.9.3"
 	}
 }

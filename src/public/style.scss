@@ -49,6 +49,7 @@ dialog.simple-popup {
 	}
 
 	.simple-popup__content {
+
 		img {
 			max-width: 100%;
 			height: auto;
@@ -74,6 +75,7 @@ dialog.simple-popup {
 }
 
 @keyframes simple-popup-in {
+
 	from {
 		opacity: 0;
 		transform: translateY(-12px) scale(0.98);
@@ -86,6 +88,7 @@ dialog.simple-popup {
 }
 
 @keyframes simple-popup-out {
+
 	from {
 		opacity: 1;
 		transform: none;
@@ -98,12 +101,14 @@ dialog.simple-popup {
 }
 
 @keyframes simple-popup-backdrop-in {
+
 	from {
 		opacity: 0;
 	}
 }
 
 @keyframes simple-popup-backdrop-out {
+
 	to {
 		opacity: 0;
 	}
@@ -147,6 +152,7 @@ dialog.simple-popup {
 }
 
 @keyframes simple-popup-test-banner-in {
+
 	from {
 		transform: translateY(100%);
 	}
@@ -157,6 +163,7 @@ dialog.simple-popup {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
 	dialog.simple-popup[open],
 	dialog.simple-popup[open]::backdrop {
 		animation: none;

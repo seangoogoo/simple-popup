@@ -26,9 +26,10 @@ const POST_TYPE = 'simple_popup';
  * `wp_add_inline_script()` (see class-simple-popup-editor.php). Falls back
  * to the plugin's own default if, for any reason, it isn't there.
  */
-const GAP = ( window.simplePopupEditor && Number.isFinite( window.simplePopupEditor.gap ) )
-	? window.simplePopupEditor.gap
-	: 30;
+const GAP =
+	window.simplePopupEditor && Number.isFinite( window.simplePopupEditor.gap )
+		? window.simplePopupEditor.gap
+		: 30;
 
 const TIME_BASED_TRIGGERS = [ 'load', 'gesture' ];
 
@@ -37,6 +38,12 @@ const TIME_BASED_TRIGGERS = [ 'load', 'gesture' ];
  * `Simple_Popup_CPT::describe()` (PHP), used by the admin list "When"
  * column and the "Diffusion plan" box, so edits made here are reflected
  * immediately, before the post is even saved.
+ *
+ * @param {string} trigger        `gesture`, `load` or `exit`.
+ * @param {number} delay          Delay in seconds.
+ * @param {string} frequency      `visit`, `hours` or `once`.
+ * @param {number} frequencyValue Inactivity minutes or hours, depending on `frequency`.
+ * @return {string} The sentence.
  */
 function describePopup( trigger, delay, frequency, frequencyValue ) {
 	let moment;
@@ -44,15 +51,28 @@ function describePopup( trigger, delay, frequency, frequencyValue ) {
 	if ( 'load' === trigger ) {
 		moment = sprintf(
 			/* translators: %d: number of seconds. */
-			_n( 'Opens %d second after the page loads', 'Opens %d seconds after the page loads', delay, 'simple-popup' ),
+			_n(
+				'Opens %d second after the page loads',
+				'Opens %d seconds after the page loads',
+				delay,
+				'simple-popup'
+			),
 			delay
 		);
 	} else if ( 'exit' === trigger ) {
-		moment = __( 'Opens when the mouse leaves the page (desktop only)', 'simple-popup' );
+		moment = __(
+			'Opens when the mouse leaves the page (desktop only)',
+			'simple-popup'
+		);
 	} else {
 		moment = sprintf(
 			/* translators: %d: number of seconds. */
-			_n( 'Opens on the first gesture after %d second', 'Opens on the first gesture after %d seconds', delay, 'simple-popup' ),
+			_n(
+				'Opens on the first gesture after %d second',
+				'Opens on the first gesture after %d seconds',
+				delay,
+				'simple-popup'
+			),
 			delay
 		);
 	}
@@ -64,7 +84,12 @@ function describePopup( trigger, delay, frequency, frequencyValue ) {
 	} else if ( 'hours' === frequency ) {
 		frequencyText = sprintf(
 			/* translators: %d: number of hours. */
-			_n( 'at most once every %d hour', 'at most once every %d hours', frequencyValue, 'simple-popup' ),
+			_n(
+				'at most once every %d hour',
+				'at most once every %d hours',
+				frequencyValue,
+				'simple-popup'
+			),
 			frequencyValue
 		);
 	} else {
@@ -94,7 +119,7 @@ function describePopup( trigger, delay, frequency, frequencyValue ) {
  * @param {string}   args.trigger  Edited popup's trigger.
  * @param {number}   args.delay    Edited popup's delay, in seconds.
  * @param {Object[]} args.siblings Other published and active popups in the same language.
- * @return {string[]}
+ * @return {string[]} Warning messages, empty if no conflict.
  */
 function getConflictMessages( { postId, trigger, delay, siblings } ) {
 	if ( ! Array.isArray( siblings ) || 0 === siblings.length ) {
@@ -108,26 +133,36 @@ function getConflictMessages( { postId, trigger, delay, siblings } ) {
 			return;
 		}
 
-		const sameMoment = sibling.trigger === trigger && ( 'exit' === trigger || sibling.delay === delay );
+		const sameMoment =
+			sibling.trigger === trigger &&
+			( 'exit' === trigger || sibling.delay === delay );
 
 		if ( sameMoment ) {
 			messages.push(
 				sprintf(
 					/* translators: %s: title of the other popup. */
-					__( 'Same moment as "%s": the first one in the list order opens first, the other one then.', 'simple-popup' ),
+					__(
+						'Same moment as "%s": the first one in the list order opens first, the other one then.',
+						'simple-popup'
+					),
 					sibling.title
 				)
 			);
 			return;
 		}
 
-		if ( TIME_BASED_TRIGGERS.includes( trigger ) && TIME_BASED_TRIGGERS.includes( sibling.trigger )
-			&& Math.abs( delay - sibling.delay ) < GAP
+		if (
+			TIME_BASED_TRIGGERS.includes( trigger ) &&
+			TIME_BASED_TRIGGERS.includes( sibling.trigger ) &&
+			Math.abs( delay - sibling.delay ) < GAP
 		) {
 			messages.push(
 				sprintf(
 					/* translators: 1: title of the other popup, 2: pause in seconds. */
-					__( 'Less than %2$d s apart from "%1$s": whichever opens second will wait %2$d s after the first one closes.', 'simple-popup' ),
+					__(
+						'Less than %2$d s apart from "%1$s": whichever opens second will wait %2$d s after the first one closes.',
+						'simple-popup'
+					),
 					sibling.title,
 					GAP
 				)
@@ -141,23 +176,31 @@ function getConflictMessages( { postId, trigger, delay, siblings } ) {
 function PopupSettingsPanel() {
 	const [ meta, setMeta ] = useEntityProp( 'postType', POST_TYPE, 'meta' );
 
-	const { translations, siblings, previewUrl, triggerTestUrl, isPublished } = useSelect( ( select ) => {
-		const post = select( 'core/editor' ).getCurrentPost();
+	const { translations, siblings, previewUrl, triggerTestUrl, isPublished } =
+		useSelect( ( select ) => {
+			const post = select( 'core/editor' ).getCurrentPost();
 
-		return {
-			translations: post && Array.isArray( post.simple_popup_translations )
-				? post.simple_popup_translations
-				: [],
-			siblings: post && Array.isArray( post.simple_popup_siblings )
-				? post.simple_popup_siblings
-				: [],
-			previewUrl: post ? post.simple_popup_preview_url || '' : '',
-			triggerTestUrl: post ? post.simple_popup_trigger_test_url || '' : '',
-			isPublished: post ? 'publish' === post.status : false,
-		};
-	}, [] );
+			return {
+				translations:
+					post && Array.isArray( post.simple_popup_translations )
+						? post.simple_popup_translations
+						: [],
+				siblings:
+					post && Array.isArray( post.simple_popup_siblings )
+						? post.simple_popup_siblings
+						: [],
+				previewUrl: post ? post.simple_popup_preview_url || '' : '',
+				triggerTestUrl: post
+					? post.simple_popup_trigger_test_url || ''
+					: '',
+				isPublished: post ? 'publish' === post.status : false,
+			};
+		}, [] );
 
-	const postId = useSelect( ( select ) => select( 'core/editor' ).getCurrentPostId(), [] );
+	const postId = useSelect(
+		( select ) => select( 'core/editor' ).getCurrentPostId(),
+		[]
+	);
 
 	if ( ! meta ) {
 		return null;
@@ -189,11 +232,15 @@ function PopupSettingsPanel() {
 					'simple-popup'
 				) }
 				checked={ active }
-				onChange={ ( value ) => updateMeta( { _simple_popup_active: value } ) }
+				onChange={ ( value ) =>
+					updateMeta( { _simple_popup_active: value } )
+				}
 			/>
 
 			<PanelRow>
-				<strong>{ __( 'Shared by all languages', 'simple-popup' ) }</strong>
+				<strong>
+					{ __( 'Shared by all languages', 'simple-popup' ) }
+				</strong>
 			</PanelRow>
 
 			<p className="simple-popup-summary">
@@ -210,8 +257,14 @@ function PopupSettingsPanel() {
 							{ __( 'Test the trigger', 'simple-popup' ) }
 						</ExternalLink>
 					</PanelRow>
-					<p className="components-base-control__help" style={ { marginTop: '4px' } }>
-						{ __( 'Preview opens right away, ignoring the trigger and delay.', 'simple-popup' ) }
+					<p
+						className="components-base-control__help"
+						style={ { marginTop: '4px' } }
+					>
+						{ __(
+							'Preview opens right away, ignoring the trigger and delay.',
+							'simple-popup'
+						) }
 					</p>
 				</div>
 			) }
@@ -226,11 +279,19 @@ function PopupSettingsPanel() {
 				label={ __( 'Trigger', 'simple-popup' ) }
 				value={ trigger }
 				options={ [
-					{ label: __( 'First gesture', 'simple-popup' ), value: 'gesture' },
+					{
+						label: __( 'First gesture', 'simple-popup' ),
+						value: 'gesture',
+					},
 					{ label: __( 'Page load', 'simple-popup' ), value: 'load' },
-					{ label: __( 'Exit intent', 'simple-popup' ), value: 'exit' },
+					{
+						label: __( 'Exit intent', 'simple-popup' ),
+						value: 'exit',
+					},
 				] }
-				onChange={ ( value ) => updateMeta( { _simple_popup_trigger: value } ) }
+				onChange={ ( value ) =>
+					updateMeta( { _simple_popup_trigger: value } )
+				}
 			/>
 
 			{ 'exit' !== trigger && (
@@ -240,7 +301,9 @@ function PopupSettingsPanel() {
 					label={ __( 'Delay (seconds)', 'simple-popup' ) }
 					value={ delay }
 					onChange={ ( value ) =>
-						updateMeta( { _simple_popup_delay: parseInt( value, 10 ) || 0 } )
+						updateMeta( {
+							_simple_popup_delay: parseInt( value, 10 ) || 0,
+						} )
 					}
 				/>
 			) }
@@ -249,11 +312,19 @@ function PopupSettingsPanel() {
 				label={ __( 'Frequency', 'simple-popup' ) }
 				value={ frequency }
 				options={ [
-					{ label: __( 'Once per visit', 'simple-popup' ), value: 'visit' },
-					{ label: __( 'Every N hours', 'simple-popup' ), value: 'hours' },
+					{
+						label: __( 'Once per visit', 'simple-popup' ),
+						value: 'visit',
+					},
+					{
+						label: __( 'Every N hours', 'simple-popup' ),
+						value: 'hours',
+					},
 					{ label: __( 'Once', 'simple-popup' ), value: 'once' },
 				] }
-				onChange={ ( value ) => updateMeta( { _simple_popup_frequency: value } ) }
+				onChange={ ( value ) =>
+					updateMeta( { _simple_popup_frequency: value } )
+				}
 			/>
 
 			{ 'once' !== frequency && (
@@ -263,11 +334,17 @@ function PopupSettingsPanel() {
 					label={
 						'hours' === frequency
 							? __( 'Hours between displays', 'simple-popup' )
-							: __( 'Inactivity minutes before a new visit', 'simple-popup' )
+							: __(
+									'Inactivity minutes before a new visit',
+									'simple-popup'
+							  )
 					}
 					value={ frequencyValue }
 					onChange={ ( value ) =>
-						updateMeta( { _simple_popup_frequency_value: parseInt( value, 10 ) || 0 } )
+						updateMeta( {
+							_simple_popup_frequency_value:
+								parseInt( value, 10 ) || 0,
+						} )
 					}
 				/>
 			) }
@@ -279,7 +356,9 @@ function PopupSettingsPanel() {
 					'simple-popup'
 				) }
 				value={ conversionSelector }
-				onChange={ ( value ) => updateMeta( { _simple_popup_conversion_selector: value } ) }
+				onChange={ ( value ) =>
+					updateMeta( { _simple_popup_conversion_selector: value } )
+				}
 			/>
 
 			{ otherLanguages.length > 0 && (
@@ -295,11 +374,15 @@ function PopupSettingsPanel() {
 											{ ': ' }
 											{ item.active
 												? __( 'Active', 'simple-popup' )
-												: __( 'Inactive', 'simple-popup' ) }
+												: __(
+														'Inactive',
+														'simple-popup'
+												  ) }
 										</a>
 									) : (
 										<a href={ item.url }>
-											{ item.name } { __( '+ Add', 'simple-popup' ) }
+											{ item.name }{ ' ' }
+											{ __( '+ Add', 'simple-popup' ) }
 										</a>
 									) }
 								</li>

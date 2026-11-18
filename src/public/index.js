@@ -1,3 +1,4 @@
+/* global Element, MutationObserver */
 import './style.scss';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -32,7 +33,9 @@ import { __, sprintf } from '@wordpress/i18n';
 
 	function getCookie( name ) {
 		const escaped = name.replace( /([.$?*|{}()[\]\\/+^])/g, '\\$1' );
-		const match = document.cookie.match( new RegExp( '(?:^|; )' + escaped + '=([^;]*)' ) );
+		const match = document.cookie.match(
+			new RegExp( '(?:^|; )' + escaped + '=([^;]*)' )
+		);
 		return match ? decodeURIComponent( match[ 1 ] ) : null;
 	}
 
@@ -50,7 +53,9 @@ import { __, sprintf } from '@wordpress/i18n';
 	}
 
 	function isInElement( event, selector ) {
-		return event.target instanceof Element ? event.target.closest( selector ) !== null : false;
+		return event.target instanceof Element
+			? event.target.closest( selector ) !== null
+			: false;
 	}
 
 	/**
@@ -133,6 +138,8 @@ import { __, sprintf } from '@wordpress/i18n';
 		 * Releases the scheduler immediately (no pause) after `popup` failed
 		 * to actually open (e.g. `showModal()` threw), so a stuck `current`
 		 * never blocks every other popup on the page.
+		 *
+		 * @param {Object} popup Popup that failed to open.
 		 */
 		function release( popup ) {
 			if ( current === popup ) {
@@ -146,6 +153,10 @@ import { __, sprintf } from '@wordpress/i18n';
 		 * Tries to open `popup` now. Returns `true` if it opened. If it
 		 * can't (busy, or not eligible), returns `false`; `queueOnBusy`
 		 * popups (load triggers) are then queued for the next opportunity.
+		 *
+		 * @param {Object}  popup       Popup to open.
+		 * @param {boolean} queueOnBusy Queue the popup if it can't open now.
+		 * @return {boolean} Whether the popup opened.
 		 */
 		function attemptOpen( popup, queueOnBusy ) {
 			if ( ! popup.canOpen() ) {
@@ -164,7 +175,11 @@ import { __, sprintf } from '@wordpress/i18n';
 			return true;
 		}
 
-		return { attemptOpen: attemptOpen, onClosed: onClosed, release: release };
+		return {
+			attemptOpen,
+			onClosed,
+			release,
+		};
 	} )();
 
 	function SimplePopup( dialog ) {
@@ -174,7 +189,8 @@ import { __, sprintf } from '@wordpress/i18n';
 		this.trigger = dialog.dataset.trigger || 'gesture';
 		this.delay = ( parseInt( dialog.dataset.delay, 10 ) || 0 ) * 1000;
 		this.frequency = dialog.dataset.frequency || 'visit';
-		this.frequencyValue = parseInt( dialog.dataset.frequencyValue, 10 ) || 0;
+		this.frequencyValue =
+			parseInt( dialog.dataset.frequencyValue, 10 ) || 0;
 		this.conversionSelector = dialog.dataset.conversion || '';
 		this.closeButton = dialog.querySelector( '.simple-popup__close' );
 		// Preview (`?simple_popup_preview={ID}`): opened immediately, outside
@@ -183,7 +199,8 @@ import { __, sprintf } from '@wordpress/i18n';
 		// Trigger test (`&simple_popup_mode=trigger`): armed with its real
 		// trigger and delay, outside the scheduler, so it opens alone on the
 		// page without reading or writing any cookie/conversion.
-		this.isTriggerTest = this.isPreview && 'trigger' === dialog.dataset.previewMode;
+		this.isTriggerTest =
+			this.isPreview && 'trigger' === dialog.dataset.previewMode;
 		// Sentence describing the trigger and delay (set by PHP), shown in
 		// the trigger-test banner.
 		this.previewSummary = dialog.dataset.previewSummary || '';
@@ -222,7 +239,11 @@ import { __, sprintf } from '@wordpress/i18n';
 		}
 
 		try {
-			return window.localStorage.getItem( 'simple_popup_converted_' + this.id ) === '1';
+			return (
+				window.localStorage.getItem(
+					'simple_popup_converted_' + this.id
+				) === '1'
+			);
 		} catch ( e ) {
 			return false;
 		}
@@ -234,7 +255,10 @@ import { __, sprintf } from '@wordpress/i18n';
 		}
 
 		try {
-			window.localStorage.setItem( 'simple_popup_converted_' + this.id, '1' );
+			window.localStorage.setItem(
+				'simple_popup_converted_' + this.id,
+				'1'
+			);
 		} catch ( e ) {
 			// Storage unavailable (private browsing, quota, …): no-op.
 		}
@@ -242,7 +266,9 @@ import { __, sprintf } from '@wordpress/i18n';
 
 	SimplePopup.prototype.canOpen = function () {
 		return (
-			typeof this.dialog.showModal === 'function' && ! this.isSeen() && ! this.isConverted()
+			typeof this.dialog.showModal === 'function' &&
+			! this.isSeen() &&
+			! this.isConverted()
 		);
 	};
 
@@ -250,6 +276,9 @@ import { __, sprintf } from '@wordpress/i18n';
 	 * Tries to open this popup now. Normal popups go through the
 	 * page-level scheduler; a trigger-test popup (alone on the page, no
 	 * pause) opens directly instead.
+	 *
+	 * @param {boolean} queueOnBusy Queue the popup if it can't open now.
+	 * @return {boolean} Whether the popup opened.
 	 */
 	SimplePopup.prototype.attemptOpen = function ( queueOnBusy ) {
 		if ( this.isTriggerTest ) {
@@ -266,6 +295,8 @@ import { __, sprintf } from '@wordpress/i18n';
 	/**
 	 * Forces lazy-loaded images to load, then calls `then()` either once
 	 * they're all loaded or after `IMAGE_WAIT_MS`, whichever comes first.
+	 *
+	 * @param {Function} then Called once the images are ready.
 	 */
 	SimplePopup.prototype.preloadImages = function ( then ) {
 		const images = this.dialog.querySelectorAll( 'img[loading="lazy"]' );
@@ -312,7 +343,10 @@ import { __, sprintf } from '@wordpress/i18n';
 	SimplePopup.prototype.close = function () {
 		const dialog = this.dialog;
 
-		if ( ! dialog.open || dialog.classList.contains( 'simple-popup--closing' ) ) {
+		if (
+			! dialog.open ||
+			dialog.classList.contains( 'simple-popup--closing' )
+		) {
 			return;
 		}
 
@@ -386,7 +420,9 @@ import { __, sprintf } from '@wordpress/i18n';
 		if ( this.conversionSelector ) {
 			const observer = new MutationObserver( function () {
 				try {
-					if ( self.dialog.querySelector( self.conversionSelector ) ) {
+					if (
+						self.dialog.querySelector( self.conversionSelector )
+					) {
 						self.markConverted();
 						observer.disconnect();
 					}
@@ -396,7 +432,11 @@ import { __, sprintf } from '@wordpress/i18n';
 					observer.disconnect();
 				}
 			} );
-			observer.observe( this.dialog, { childList: true, subtree: true, attributes: true } );
+			observer.observe( this.dialog, {
+				childList: true,
+				subtree: true,
+				attributes: true,
+			} );
 		}
 
 		// Contact Form 7 dispatches this event (bubbling) on successful submission.
@@ -464,7 +504,10 @@ import { __, sprintf } from '@wordpress/i18n';
 				unbind();
 				return;
 			}
-			if ( 'click' === event.type && isInElement( event, INTERACTIVE_SELECTOR ) ) {
+			if (
+				'click' === event.type &&
+				isInElement( event, INTERACTIVE_SELECTOR )
+			) {
 				return;
 			}
 			if ( 'keydown' === event.type ) {
@@ -495,7 +538,9 @@ import { __, sprintf } from '@wordpress/i18n';
 
 		function unbind() {
 			GESTURES.forEach( function ( type ) {
-				window.removeEventListener( type, onGesture, { passive: true } );
+				window.removeEventListener( type, onGesture, {
+					passive: true,
+				} );
 			} );
 		}
 
@@ -515,18 +560,24 @@ import { __, sprintf } from '@wordpress/i18n';
 		const self = this;
 
 		// Exit intent only makes sense with a precise pointer (desktop).
-		if ( ! window.matchMedia || ! window.matchMedia( '(pointer: fine)' ).matches ) {
+		if (
+			! window.matchMedia ||
+			! window.matchMedia( '(pointer: fine)' ).matches
+		) {
 			return;
 		}
 
-		document.documentElement.addEventListener( 'mouseleave', function ( event ) {
-			if ( event.clientY > 0 ) {
-				return;
+		document.documentElement.addEventListener(
+			'mouseleave',
+			function ( event ) {
+				if ( event.clientY > 0 ) {
+					return;
+				}
+				// Not queued: if the scheduler is busy, this exit intent doesn't
+				// count, a later one must try again (rule 4, "exit").
+				self.attemptOpen( false );
 			}
-			// Not queued: if the scheduler is busy, this exit intent doesn't
-			// count, a later one must try again (rule 4, "exit").
-			self.attemptOpen( false );
-		} );
+		);
 	};
 
 	/**
@@ -588,6 +639,8 @@ import { __, sprintf } from '@wordpress/i18n';
 	 * to trigger the popup, counts down its delay, and reports the
 	 * outcome. Always below the popup itself, which renders in the
 	 * browser's native top layer regardless of any z-index here.
+	 *
+	 * @param {Object} popup Trigger-test popup.
 	 */
 	function createTriggerTestBanner( popup ) {
 		const bar = document.createElement( 'div' );
@@ -628,7 +681,10 @@ import { __, sprintf } from '@wordpress/i18n';
 			if ( 'load' === popup.trigger ) {
 				text.textContent = __( 'Opening…', 'simple-popup' );
 			} else if ( 'exit' === popup.trigger ) {
-				if ( window.matchMedia && window.matchMedia( '(pointer: fine)' ).matches ) {
+				if (
+					window.matchMedia &&
+					window.matchMedia( '(pointer: fine)' ).matches
+				) {
 					text.textContent = __(
 						'Now: move the mouse out of the window, towards the top',
 						'simple-popup'
@@ -640,7 +696,10 @@ import { __, sprintf } from '@wordpress/i18n';
 					);
 				}
 			} else {
-				text.textContent = __( 'Now: scroll, click or press a key', 'simple-popup' );
+				text.textContent = __(
+					'Now: scroll, click or press a key',
+					'simple-popup'
+				);
 			}
 		}
 
@@ -678,8 +737,14 @@ import { __, sprintf } from '@wordpress/i18n';
 			stopCountdown();
 			text.textContent =
 				'load' === popup.trigger
-					? __( 'Popup closed. Reload the page to test again, or close this test.', 'simple-popup' )
-					: __( 'Popup closed. Trigger it again or close this test.', 'simple-popup' );
+					? __(
+							'Popup closed. Reload the page to test again, or close this test.',
+							'simple-popup'
+					  )
+					: __(
+							'Popup closed. Trigger it again or close this test.',
+							'simple-popup'
+					  );
 		} );
 
 		// `exit` isn't delay-based (see `armExit`): skip straight to the
