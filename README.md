@@ -94,7 +94,7 @@ Without Polylang (or any multilingual plugin), every active popup is a candidate
 3. Activate "Simple Popup".
 4. Create a popup under "Popups", write its content with blocks, set its trigger/frequency in the sidebar, mark it Active, and publish it.
 
-Once installed this way, updates appear on the Plugins page like any other plugin (Dashboard → Updates → Check again to check immediately). "View details" on the Plugins page shows the full changelog; release information is cached for 12 hours (1 hour after a failed check) unless "Check again" is used.
+Once installed this way, updates appear on the Plugins page like any other plugin (Dashboard → Updates → Check again to check immediately). "View details" on the Plugins page shows the full changelog of the latest release. Each update check and each "View details" asks GitHub whether the release changed (conditional request, no API quota used when it hasn't), so a new release and its changelog show up at once; after a failed check, GitHub is left alone for 1 hour.
 
 ### For development
 
@@ -117,7 +117,7 @@ Other available scripts: `npm run lint:js`, `npm run lint:css`, `npm run format`
 1. While working, add entries under `## [Unreleased]` in `CHANGELOG.md` (Added / Changed / Fixed / Removed) and commit them with the code.
 2. On a clean `main`, run `npm version patch` (fixes) or `npm version minor` (features):
    - `preversion` refuses to release when `[Unreleased]` has no entry, or when `lint:js` or `lint:css` fails;
-   - `version` copies the version to the plugin header, the `SIMPLE_POPUP_VERSION` constant and `readme.txt`, dates the changelog section, rebuilds, and adds the files to the release commit;
+   - `version` copies the version to the plugin header, the `SIMPLE_POPUP_VERSION` constant and `readme.txt`, dates the changelog section, regenerates the `readme.txt` changelog from `CHANGELOG.md`, rebuilds, and adds the files to the release commit;
    - `postversion` pushes the commit and the `vX.Y.Z` tag.
 3. The GitHub workflow `.github/workflows/release.yml` builds `simple-popup.zip` and publishes the GitHub release, with the changelog section as release notes.
 
