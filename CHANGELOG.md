@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-18
+
 ### Added
 
 - "Test the trigger" link (editor and admin list): opens the popup alone with its real trigger and delay (`?simple_popup_preview={ID}&simple_popup_mode=trigger`), without cookies or conversion storage, outside the pause between popups, with a bottom banner showing a countdown and what to do next. After closing, `gesture` and `exit` popups can be triggered again without reloading. New editor-only REST field `simple_popup_trigger_test_url`.
