@@ -49,6 +49,18 @@ Yes. Each one follows its own trigger, delay and frequency. On a page, never two
 
 == Changelog ==
 
+= 0.3.1 =
+* Fix: the trigger-test banner no longer makes screen readers announce the countdown every second; the countdown follows the real delay, even in a background tab.
+* Fix: visible keyboard focus on "Close test"; preview pages are never cached.
+* Banner shows when the popup is open; editor help explains both links.
+
+= 0.3.0 =
+* New: "Test the trigger" link (editor and list) opens a popup alone with its real trigger and delay, without cookies, with a banner explaining what to do.
+* The "Test" link is now "Preview" (opens immediately, as before).
+
+= 0.2.2 =
+* New: updates from GitHub releases in the Plugins screen.
+
 = 0.2.1 =
 * Fix: the scheduler could stay stuck forever if `showModal()` threw while opening a popup (e.g. already-open `<dialog>`, detached node); it now releases immediately and moves on to the next popup.
 * Fix: the editor's "same moment" conflict notice between two exit-intent popups now ignores their (hidden, unused) delay.
