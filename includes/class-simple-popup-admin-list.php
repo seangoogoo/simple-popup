@@ -486,7 +486,8 @@ class Simple_Popup_Admin_List {
 	 * popup alone, immediately, ignoring its trigger and delay; "Test the
 	 * trigger" opens it alone with its real trigger and delay. Both land
 	 * on the popup's language home page and require `edit_post`
-	 * (`get_preview_url()` re-checks it), whatever the popup's status.
+	 * (`Simple_Popup_Frontend::get_preview_popup()` re-checks it on the
+	 * front end), whatever the popup's status.
 	 *
 	 * @param array   $actions Existing row actions.
 	 * @param WP_Post $post    Row's post.

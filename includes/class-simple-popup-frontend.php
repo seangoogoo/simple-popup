@@ -23,6 +23,16 @@ class Simple_Popup_Frontend {
 
 	public static function init() {
 		add_action( 'wp_footer', array( __CLASS__, 'render_popups' ) );
+		add_action( 'template_redirect', array( __CLASS__, 'send_preview_nocache_headers' ) );
+	}
+
+	/**
+	 * A preview page can show a draft popup: keep it out of any page cache.
+	 */
+	public static function send_preview_nocache_headers() {
+		if ( self::get_preview_popup() ) {
+			nocache_headers();
+		}
 	}
 
 	/**

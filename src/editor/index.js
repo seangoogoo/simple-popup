@@ -1,4 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import { registerPlugin } from '@wordpress/plugins';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -248,22 +249,24 @@ function PopupSettingsPanel() {
 
 			{ isPublished && previewUrl && (
 				<div style={ { marginBottom: '16px' } }>
-					<PanelRow>
+					<div style={ { display: 'flex', gap: '16px' } }>
 						<ExternalLink href={ previewUrl }>
 							{ __( 'Preview', 'simple-popup' ) }
 						</ExternalLink>
 						<ExternalLink
-							href={ previewUrl + '&simple_popup_mode=trigger' }
+							href={ addQueryArgs( previewUrl, {
+								simple_popup_mode: 'trigger',
+							} ) }
 						>
 							{ __( 'Test the trigger', 'simple-popup' ) }
 						</ExternalLink>
-					</PanelRow>
+					</div>
 					<p
 						className="components-base-control__help"
 						style={ { marginTop: '4px' } }
 					>
 						{ __(
-							'Preview opens right away, ignoring the trigger and delay.',
+							'Preview opens right away, ignoring the trigger and delay. Test the trigger waits for the real trigger and delay. Neither reads nor writes cookies.',
 							'simple-popup'
 						) }
 					</p>

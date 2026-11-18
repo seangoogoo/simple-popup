@@ -7,7 +7,8 @@
 		'wp-edit-post',
 		'wp-editor',
 		'wp-i18n',
-		'wp-plugins'
+		'wp-plugins',
+		'wp-url'
 	),
-	'version' => '065578fe0b00919d325b'
+	'version' => '2346d0f5d394d42c96cc'
 );

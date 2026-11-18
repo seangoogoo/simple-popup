@@ -641,11 +641,16 @@ import { __, sprintf } from '@wordpress/i18n';
 	function createTriggerTestBanner( popup ) {
 		const bar = document.createElement( 'div' );
 		bar.className = 'simple-popup-test-banner';
-		bar.setAttribute( 'role', 'status' );
-		bar.setAttribute( 'aria-live', 'polite' );
 
-		const text = document.createElement( 'span' );
-		bar.appendChild( text );
+		// Only step changes are announced; the per-second countdown sits in
+		// a separate, hidden-from-AT span so screen readers aren't flooded.
+		const status = document.createElement( 'span' );
+		status.setAttribute( 'role', 'status' );
+		bar.appendChild( status );
+
+		const countdown = document.createElement( 'span' );
+		countdown.setAttribute( 'aria-hidden', 'true' );
+		bar.appendChild( countdown );
 
 		const closeLink = document.createElement( 'a' );
 		closeLink.className = 'simple-popup-test-banner__close';
@@ -664,74 +669,82 @@ import { __, sprintf } from '@wordpress/i18n';
 			return url.toString();
 		}
 
-		function stopCountdown() {
+		function show( message ) {
 			if ( null !== countdownId ) {
 				window.clearInterval( countdownId );
 				countdownId = null;
 			}
+			countdown.textContent = '';
+			status.textContent = message;
 		}
 
 		function showReady() {
-			stopCountdown();
-
 			if ( 'load' === popup.trigger ) {
-				text.textContent = __( 'Opening…', 'simple-popup' );
+				show( __( 'Opening…', 'simple-popup' ) );
 			} else if ( 'exit' === popup.trigger ) {
-				if (
+				show(
 					window.matchMedia &&
-					window.matchMedia( '(pointer: fine)' ).matches
-				) {
-					text.textContent = __(
-						'Now: move the mouse out of the window, towards the top',
-						'simple-popup'
-					);
-				} else {
-					text.textContent = __(
-						'Exit intent only works on a desktop computer with a mouse.',
-						'simple-popup'
-					);
-				}
+						window.matchMedia( '(pointer: fine)' ).matches
+						? __(
+								'Now: move the mouse out of the window, towards the top',
+								'simple-popup'
+						  )
+						: __(
+								'Exit intent only works on a desktop computer with a mouse.',
+								'simple-popup'
+						  )
+				);
 			} else {
-				text.textContent = __(
-					'Now: scroll, click or press a key',
-					'simple-popup'
+				show(
+					__( 'Now: scroll, click or press a key', 'simple-popup' )
 				);
 			}
 		}
 
 		function showWaiting() {
-			let secondsLeft = Math.ceil( popup.delay / 1000 );
+			// Same clock as `armGesture`/`armLoad`, so a throttled background
+			// tab can't make the countdown lag behind the real delay.
+			const deadline = window.performance.now() + popup.delay;
 
 			function tick() {
-				text.textContent = sprintf(
-					/* translators: 1: sentence describing the popup's trigger and delay, 2: number of seconds left before it can trigger. */
-					__( 'Test mode: %1$s Waiting %2$d s…', 'simple-popup' ),
-					popup.dialog.dataset.previewSummary,
+				const secondsLeft = Math.ceil(
+					( deadline - window.performance.now() ) / 1000
+				);
+				if ( secondsLeft <= 0 ) {
+					showReady();
+					return;
+				}
+				countdown.textContent = sprintf(
+					/* translators: %d: number of seconds left before the popup can trigger. */
+					__( 'Waiting %d s…', 'simple-popup' ),
 					secondsLeft
 				);
 			}
 
-			if ( secondsLeft <= 0 ) {
-				showReady();
-				return;
-			}
-
+			show(
+				sprintf(
+					/* translators: %s: sentence describing the popup's trigger and delay. */
+					__( 'Test mode: %s', 'simple-popup' ),
+					popup.dialog.dataset.previewSummary
+				)
+			);
 			tick();
-
-			countdownId = window.setInterval( function () {
-				secondsLeft--;
-				if ( secondsLeft <= 0 ) {
-					stopCountdown();
-					showReady();
-					return;
-				}
-				tick();
-			}, 1000 );
+			if ( popup.delay > 0 ) {
+				countdownId = window.setInterval( tick, 250 );
+			}
 		}
 
+		new MutationObserver( function () {
+			if ( popup.dialog.open ) {
+				show( __( 'Popup open.', 'simple-popup' ) );
+			}
+		} ).observe( popup.dialog, {
+			attributes: true,
+			attributeFilter: [ 'open' ],
+		} );
+
 		popup.dialog.addEventListener( 'close', function () {
-			stopCountdown();
-			text.textContent =
+			show(
 				'load' === popup.trigger
 					? __(
 							'Popup closed. Reload the page to test again, or close this test.',
@@ -740,7 +753,8 @@ import { __, sprintf } from '@wordpress/i18n';
 					: __(
 							'Popup closed. Trigger it again or close this test.',
 							'simple-popup'
-					  );
+					  )
+			);
 		} );
 
 		// `exit` isn't delay-based (see `armExit`): skip straight to the

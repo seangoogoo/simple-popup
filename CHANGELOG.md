@@ -6,12 +6,20 @@ All notable changes to this project are documented in this file.
 
 ### Removed
 
-- REST field `simple_popup_trigger_test_url`: the editor builds the trigger-test link from `simple_popup_preview_url`.
+- REST field `simple_popup_trigger_test_url`: the editor builds the trigger-test link from `simple_popup_preview_url` (with `addQueryArgs`).
 
 ### Changed
 
 - Preview markup: a single `data-preview="1|trigger"` attribute replaces `data-preview` + `data-preview-mode`.
 - `npm version` now runs `lint:js` and `lint:css` first; TypeScript pinned to 5 so ESLint runs again.
+- Trigger-test banner: also says when the popup is open; the editor help text now explains both links, which sit side by side.
+
+### Fixed
+
+- Trigger-test banner: screen readers announced the countdown every second. Only step changes are announced now; the countdown is hidden from assistive technology.
+- Trigger-test banner: the countdown followed `setInterval` and could lag behind the real delay in a background tab. It now uses the same clock as the trigger.
+- "Close test" link: visible focus outline on the dark banner.
+- Preview pages send no-cache headers, so a draft popup can't land in a page cache.
 
 ## [0.3.0] - 2026-11-18
 
